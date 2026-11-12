@@ -1,1 +1,1 @@
-# The-Vault
+The Vault: the 3D Operations Vault floor. Start it locally with Start-OperationsVault.bat from the starter zip; the starter loads the latest index.html from this repository on every reload. three.min.js is Three.js r128 (MIT license, (c) 2010-2021 three.js authors).
