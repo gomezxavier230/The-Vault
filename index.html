@@ -414,7 +414,8 @@
     mess:   { name: "MESS",       x: -9.8,  z: 3.6,  w: 5.2, d: 5.2, color: 0x241c14 },
     comms:  { name: "COMMS ANNEX",x: 9.8,   z: -3.8, w: 5.2, d: 4,   color: 0x1a1e20 },
     water:  { name: "WATER WORKS",x: 9.8,   z: 3.6,  w: 5.2, d: 5.2, color: 0x16201e },
-    store:  { name: "STORAGE",    x: 17.2,  z: 0.2,  w: 4,   d: 12,  color: 0x1e1a16 },
+    store:  { name: "STORAGE",    x: 17.2,  z: -2.8, w: 4,   d: 6,   color: 0x1e1a16 },
+    quarters: { name: "TRADER",   x: 17.2,  z: 3.2,  w: 4,   d: 6,   color: 0x201a18 },
   };
 
   var BOTS = [
@@ -425,6 +426,7 @@
     { id: "fund", name: "Fundamental Researcher", role: "Fundamental Researcher", status: "On standby", kind: "archivist", room: "fund", x: 13.6, z: -10 },
     { id: "risk", name: "Risk Manager", role: "Risk Manager", status: "On standby", kind: "warden", room: "risk", x: 13.6, z: 9.2 },
     { id: "researcher", name: "Researcher", role: "Web researcher", status: "Ready to search", kind: "runner", room: "res", x: 4.2, z: 11.4 },
+    { id: "trader", name: "Paper Trader", role: "Paper Trader", status: "Asleep until trading starts", kind: "trader", room: "quarters", x: 18.4, z: 4.0 },
   ];
 
   var LOOKS = {
@@ -469,6 +471,12 @@
       hairStyle: "swept", beard: "none", lean: 0.09,
       shirt: 0x8a8a62, pants: 0x3a3834, boots: 0x4a3424, bootStyle: "mid",
       sleeve: 0xb8a47c, rolled: true, cuff: 0x8a8a62, hands: "bare"
+    },
+    trader: {
+      scale: 1.0, broad: 1.0, skin: 0xd0a07a, eyes: 0x3a3022, hair: 0x3a2a1c,
+      hairStyle: "swept", beard: "short", beardColor: 0x3a2a1c,
+      shirt: 0x8a3a2a, pants: 0x3e3a30, boots: 0x3a281a, bootStyle: "mid",
+      sleeve: 0x5a3a2a, rolled: true, cuff: 0x8a3a2a, hands: "fingerless", gloves: 0x4a3424
     }
   };
 
@@ -800,7 +808,8 @@
       mess:   { x0: -12.4, x1: -7.2,  z0: 1.0,   z1: 6.2 },
       comms:  { x0: 7.2,   x1: 12.4,  z0: -5.8,  z1: -1.8 },
       water:  { x0: 7.2,   x1: 12.4,  z0: 1.0,   z1: 6.2 },
-      store:  { x0: 15.2,  x1: 19.2,  z0: -5.8,  z1: 6.2 },
+      store:  { x0: 15.2,  x1: 19.2,  z0: -5.8,  z1: 0.2 },
+      quarters: { x0: 15.2, x1: 19.2, z0: 0.2,   z1: 6.2 },
     };
     var ROOM_STYLE = {
       hub:    { paint: 0x9a5a28, light: 0xffc27a, floor: 0x8a7458, sign: "01  OVERSEER", lit: true, inlay: 0xc0782c },
@@ -821,6 +830,7 @@
       comms:  { paint: 0x2e5a62, light: 0xa0f0ff, floor: 0x646c6a, sign: "11  COMMS", inlay: 0x2e7280 },
       water:  { paint: 0x3a6a5a, light: 0xb0ffe0, floor: 0x66706a, sign: "12  WATER", inlay: 0x3a8a70 },
       store:  { paint: 0x6a4a6a, light: 0xffd0c0, floor: 0x726660, sign: "13  STORAGE", inlay: 0x7e4e7a },
+      quarters: { paint: 0x7a3a2a, light: 0xffc8a0, floor: 0x7a6656, sign: "14  TRADER", inlay: 0x9a4a30 },
     };
     var DOORS = [
       { id: "d_hub",   x: 0,     z: -7.4, axis: "x", w: 2.2, a: "hub",    b: "atrium" },
@@ -840,7 +850,8 @@
       { id: "d_comms", x: 9.8,   z: -1.8, axis: "x", w: 1.8, a: "comms",  b: "elink" },
       { id: "d_water", x: 9.8,   z: 1.0,  axis: "x", w: 1.8, a: "elink",  b: "water" },
       { id: "d_gen",   x: -15.2, z: 2.6,  axis: "z", w: 1.8, a: "gen",    b: "wcor" },
-      { id: "d_store", x: 15.2,  z: 2.6,  axis: "z", w: 1.8, a: "ecor",   b: "store" },
+      { id: "d_store", x: 15.2,  z: -2.8, axis: "z", w: 1.8, a: "ecor",   b: "store" },
+      { id: "d_trader", x: 15.2, z: 3.2,  axis: "z", w: 1.8, a: "ecor",   b: "quarters" },
     ];
     // axis "x": wall runs along x at constant z = c; axis "z": along z at x = c; h = wall height (blocky silhouette)
     var PERIM_H = 4.3;
@@ -872,6 +883,8 @@
       { axis: "z", c: 12.4,  a0: -5.8,  a1: 6.2, h: 3.4 },
       { axis: "x", c: -1.8,  a0: 7.2,   a1: 12.4, h: 3.4 },
       { axis: "x", c: 1.0,   a0: 7.2,   a1: 12.4, h: 3.4 },
+      // trader quarters split off the south end of storage
+      { axis: "x", c: 0.2,   a0: 15.2,  a1: 19.2, h: 3.4 },
     ];
     var PILLARS = [[-8.6, -7.2, -7.4, -5.8], [7.2, 8.6, -7.4, -5.8], [-8.6, -7.2, 6.2, 7.4], [7.2, 8.6, 6.2, 7.4]];
     var BOT_R = 0.3;
@@ -1675,13 +1688,89 @@
         box(metalM, 0.04, 0.12, 0.04, 18.45, 1.3, lz + 0.18, building);
       }
       var ajar = box(nMat(0x6a5a4a, { metalness: 0.45 }), 0.03, 1.9, 0.56, 18.2, 1.27, -2.45, building); ajar.rotation.y = 0.9;
-      box(woodM, 1.2, 0.14, 1.0, 17.6, 0.42, 4.8, building); // pallet
-      box(nCrateM, 0.8, 0.7, 0.8, 17.4, 0.84, 4.7, building).rotation.y = 0.1;
-      box(nCrateM, 0.6, 0.55, 0.6, 17.9, 0.77, 5.05, building).rotation.y = -0.3;
-      box(nCrateM, 0.6, 0.55, 0.6, 17.45, 1.47, 4.75, building).rotation.y = 0.35;
-      box(nCrateM, 0.7, 0.6, 0.7, 16.2, 0.7, 5.5, building).rotation.y = 0.5;
+      box(woodM, 1.2, 0.14, 1.0, 17.7, 0.42, -0.65, building); // pallet
+      box(nCrateM, 0.8, 0.7, 0.8, 17.5, 0.84, -0.7, building).rotation.y = 0.1;
+      box(nCrateM, 0.6, 0.55, 0.6, 18.0, 0.77, -0.4, building).rotation.y = -0.3;
+      box(nCrateM, 0.6, 0.55, 0.6, 17.55, 1.47, -0.65, building).rotation.y = 0.35;
       nBarrel(16.0, -5.0, 1); nBarrel(16.65, -5.1, 2); nBarrel(16.0, -4.4, 0);
-      nRubble(18.4, 5.6, 6);
+      nRubble(16.3, -0.5, 6);
+    })();
+
+    // 14 TRADER QUARTERS (south of storage): cot with blanket, nightstand lamp, trading desk + terminal, chair
+    var TRADER = { bed: { x: 18.42, z: 4.95 }, lie: { x: 18.42, y: 0.93, z: 3.98 }, side: { x: 17.25, z: 4.55 }, seat: { x: 17.67, z: 1.6 } };
+    (function () {
+      var bedFrameM = nMat(0x5a5048, { metalness: 0.5, roughness: 0.6 });
+      var mattM = nMat(0x9a8e70, { roughness: 0.95 });
+      var bx0 = TRADER.bed.x, bz0 = TRADER.bed.z;
+      box(bedFrameM, 1.1, 0.1, 2.2, bx0, 0.68, bz0, building);                 // frame
+      [[-0.5, -1.04], [0.5, -1.04], [-0.5, 1.04], [0.5, 1.04]].forEach(function (q) { box(bedFrameM, 0.07, 0.36, 0.07, bx0 + q[0], 0.52, bz0 + q[1], building); });
+      box(mattM, 1.0, 0.16, 2.1, bx0, 0.81, bz0, building);                    // mattress
+      box(bedFrameM, 1.1, 0.75, 0.07, bx0, 0.86, bz0 + 1.1, building);          // headboard (south)
+      box(bedFrameM, 1.1, 0.42, 0.06, bx0, 0.7, bz0 - 1.1, building);           // footboard
+      box(nMat(0xd8cfb4, { roughness: 0.95 }), 0.62, 0.12, 0.34, bx0, 0.95, bz0 + 0.82, building); // pillow
+      // blanket: covers him while asleep, folds to the foot of the bed when he is up
+      var blanket = new THREE.Group(); blanket.position.set(bx0, 1.04, bz0 - 1.02); building.add(blanket);
+      var bl = new THREE.Mesh(new THREE.BoxGeometry(1.06, 0.1, 1.4), nMat(0x5a6a3e, { roughness: 1 }));
+      bl.position.z = 0.7; bl.castShadow = true; blanket.add(bl);
+      var stripe = new THREE.Mesh(new THREE.BoxGeometry(1.07, 0.102, 0.12), nMat(0x9a4a2a, { roughness: 1 }));
+      stripe.position.z = 1.2; blanket.add(stripe);
+      TRADER.blanket = blanket;
+      // nightstand crate + lamp
+      box(nCrateM, 0.5, 0.5, 0.5, 18.72, 0.65, 3.4, building);
+      nCyl(metalM, 0.08, 0.1, 0.05, 18.72, 0.93, 3.4, 10);
+      nCyl(metalM, 0.015, 0.015, 0.3, 18.72, 1.1, 3.4, 6);
+      var lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.14, 12, 1, true), nMat(0x8a6a3a, { side: THREE.DoubleSide }));
+      lampShade.position.set(18.72, 1.28, 3.4); building.add(lampShade);
+      var lampBulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), new THREE.MeshStandardMaterial({ color: 0xffc890, emissive: 0xffb060, emissiveIntensity: 1.2 }));
+      lampBulb.position.set(18.72, 1.24, 3.4); building.add(lampBulb);
+      var roomLight = new THREE.PointLight(0xffc8a0, 0.75, 10, 2); roomLight.position.set(17.2, 2.9, 3.2); building.add(roomLight);
+      var nightLight = new THREE.PointLight(0xffa860, 0.35, 3.2, 2); nightLight.position.set(18.6, 1.4, 3.6); building.add(nightLight);
+      TRADER.roomLight = roomLight;
+      // trading desk against the east wall, terminal facing west toward the chair
+      var dg = new THREE.Group(); dg.position.set(18.5, 0.28, TRADER.seat.z); dg.rotation.y = Math.PI / 2; building.add(dg);
+      var top = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.07, 0.72), woodM); top.position.y = 0.77; top.castShadow = true; dg.add(top);
+      [[-0.68, -0.3], [0.68, -0.3], [-0.68, 0.3], [0.68, 0.3]].forEach(function (q) { var l = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.74, 0.07), metalM); l.position.set(q[0], 0.37, q[1]); dg.add(l); });
+      var house = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.48, 0.5), new THREE.MeshStandardMaterial({ color: 0x5a5244, roughness: 0.6, metalness: 0.2 }));
+      house.position.set(0, 1.06, 0.12); house.castShadow = true; dg.add(house);
+      var tc = document.createElement("canvas"); tc.width = 256; tc.height = 192;
+      var tg = tc.getContext("2d");
+      var scrTex = new THREE.CanvasTexture(tc); scrTex.encoding = THREE.sRGBEncoding;
+      var scrM = new THREE.MeshStandardMaterial({ map: scrTex, emissive: 0xffffff, emissiveMap: scrTex, emissiveIntensity: 0.6 });
+      var scr = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.36), scrM); scr.position.set(0, 1.08, -0.135); scr.rotation.y = Math.PI; dg.add(scr);
+      function drawScreen(on) {
+        tg.fillStyle = on ? "#06160a" : "#0a0a08"; tg.fillRect(0, 0, 256, 192);
+        if (on) {
+          tg.strokeStyle = "#7ad05a"; tg.lineWidth = 3; tg.beginPath();
+          for (var i = 0; i <= 16; i++) { var y = 120 - Math.sin(i * 0.7) * 22 - i * 3 + (i % 3) * 6; if (i) tg.lineTo(14 + i * 14, y); else tg.moveTo(14, y); }
+          tg.stroke();
+          tg.fillStyle = "#9ae06a"; tg.font = "700 18px monospace"; tg.fillText("> PAPER MODE", 12, 26); tg.fillText("  REPORTS IN", 12, 176);
+        } else {
+          tg.fillStyle = "#3a3a30"; tg.font = "700 18px monospace"; tg.fillText("> SLEEP", 12, 26);
+        }
+        scrTex.needsUpdate = true;
+      }
+      drawScreen(false);
+      var scrLight = new THREE.PointLight(0x7ad05a, 0, 3, 2); scrLight.position.set(0, 1.1, -0.6); dg.add(scrLight);
+      TRADER.screen = function (on) { drawScreen(on); scrM.emissiveIntensity = on ? 0.9 : 0.15; scrLight.intensity = on ? 0.6 : 0; };
+      // paper stacks for incoming reports
+      var stackM = new THREE.MeshStandardMaterial({ color: 0xe0d4b0 });
+      var rep1 = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.02, 0.3), stackM); rep1.position.set(-0.52, 0.82, -0.1); rep1.rotation.y = 0.15; dg.add(rep1);
+      var rep2 = rep1.clone(); rep2.position.set(0.52, 0.82, -0.1); rep2.rotation.y = -0.2; dg.add(rep2);
+      rep1.visible = rep2.visible = false;
+      TRADER.reports = [rep1, rep2];
+      // chair (back toward the room, facing the desk)
+      var ch = new THREE.Group(); ch.position.set(TRADER.seat.x, 0.28, TRADER.seat.z); ch.rotation.y = Math.PI / 2; building.add(ch);
+      var seatM = nMat(0x6a4a2a, { roughness: 0.7 });
+      var seat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.07, 0.5), seatM); seat.position.y = 0.44; seat.castShadow = true; ch.add(seat);
+      var back = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.7, 0.07), seatM); back.position.set(0, 0.84, -0.29); back.rotation.x = -0.08; ch.add(back);
+      [[-0.22, -0.2], [0.22, -0.2], [-0.22, 0.2], [0.22, 0.2]].forEach(function (q) { var l = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), metalM); l.position.set(q[0], 0.21, q[1]); ch.add(l); });
+      // floating Z's over the cot while he sleeps
+      var zc = document.createElement("canvas"); zc.width = 128; zc.height = 128;
+      var zg = zc.getContext("2d"); zg.fillStyle = "#f0e6c8"; zg.font = "700 46px monospace"; zg.fillText("Z", 14, 110); zg.font = "700 34px monospace"; zg.fillText("z", 58, 72); zg.font = "700 24px monospace"; zg.fillText("z", 92, 40);
+      var zt = new THREE.CanvasTexture(zc); zt.encoding = THREE.sRGBEncoding;
+      var zs = new THREE.Sprite(new THREE.SpriteMaterial({ map: zt, transparent: true, depthWrite: false }));
+      zs.scale.set(0.6, 0.6, 0.6); zs.position.set(bx0, 1.6, bz0 + 0.7); building.add(zs);
+      TRADER.zzz = zs;
     })();
 
     // ---- clutter: crates, barrels, rubble in corners (kept clear of doors and stations) ----
@@ -2687,6 +2776,7 @@
       fund:       { x: 13.9,  z: -10.0,  face: 0,           pose: "read",   vias: [[12.5, -8.6], [12.5, -10.0]] },
       risk:       { x: 13.9,  z: 11.25,  face: 0,           pose: "ledger" },
       researcher: { x: 3.6,   z: 11.65,  face: 0,           pose: "radio" },
+      trader:     { x: 17.67, z: 1.6,    face: Math.PI / 2, pose: "sit" },
     };
     var VISITS = {
       austronaut: { partner: "scout",   x: 1.35,  z: -11.2, vias: [[1.5, -9.6]] },
@@ -2695,7 +2785,7 @@
     };
     var STROLLS = {
       scout: [[2.6, -9.2]], austronaut: [[-2.5, 11.0], [0, 2.6], [3.5, -3.0], [-16.4, 0.6]], scanner: [[-14.5, -9.0], [-9.8, -3.3]],
-      analyst: [[-14.0, 10.6], [-8.4, 2.4]], fund: [[16.6, -8.0], [16.4, 0.6]], risk: [[16.6, 9.2], [9.0, 2.4]], researcher: [[6.2, 10.0], [9.8, -3.3]],
+      analyst: [[-14.0, 10.6], [-8.4, 2.4]], fund: [[16.6, -8.0], [16.6, -2.0]], risk: [[16.6, 9.2], [9.0, 2.4]], researcher: [[6.2, 10.0], [9.8, -3.3]], trader: [[16.4, 2.4]],
     };
     function botById(id) { return botGroups.filter(function (b) { return b.def.id === id; })[0]; }
 
@@ -2803,6 +2893,7 @@
     function updateBot(b, dt) {
       var u = b.group.userData, p = b.group.position, st = STATIONS[b.def.id];
       u.phase += dt;
+      if (b.def.id === "trader" && traderUpdate(b, dt)) return;
       var r = regionAt(p.x, p.z);
       if (r) u.lastRegion = r;
       var P = basePose(b), k = 1 - Math.exp(-7 * dt);
@@ -2846,6 +2937,7 @@
         u.timer -= dt;
         if (u.timer <= 0) {
           if (partner) partner.group.userData.listenTo = null;
+          if (u.onDone) { u.onDone(); u.onDone = null; }
           planTo(b, st, "work");
         }
         return applyPose(b, P, k);
@@ -2889,6 +2981,16 @@
     }
     function arrive(b) {
       var u = b.group.userData;
+      if (u.then === "report") {
+        if (!trading) { planTo(b, STATIONS[b.def.id], "work"); return; }
+        var tr = botById("trader");
+        u.state = "talk"; u.partner = "trader"; u.timer = 5;
+        if (tr) tr.group.userData.listenTo = b.def.id;
+        if (u.paper) u.paper.visible = true;
+        u.onDone = function () { if (u.paper) u.paper.visible = false; var i = b.def.id === "scanner" ? 0 : 1; if (TRADER.reports[i]) TRADER.reports[i].visible = true; };
+        return;
+      }
+      if (u.then === "bed") { u.state = "liedown"; u.t = 0; return; }
       if (u.then === "talk") {
         var vis = VISITS[b.def.id], partner = botById(vis.partner);
         u.state = "talk"; u.partner = vis.partner; u.timer = 6;
@@ -2900,6 +3002,113 @@
       }
     }
 
+    // ---- Paper Trader: sleeps in his cot until trading starts, then gets up, goes to his terminal,
+    // and Market Scanner + Technical Analyst walk over to hand him their reports ----
+    var TRADE_KEY = "operationsVault.trading";
+    var trading = false;
+    try { trading = localStorage.getItem(TRADE_KEY) === "1"; } catch (e) {}
+    function sleepPose(b, P) {
+      P.hipsY = 0.9; P.legL = P.legR = 0; P.kneeL = P.kneeR = 0.05;
+      P.armLx = P.armRx = 0.02; P.armLz = 0.08; P.armRz = -0.08; P.elbL = P.elbR = -0.15;
+      P.torsoX = 0.02 * Math.sin(b.group.userData.phase * 1.3); P.headX = -0.05; P.headY = 0.35;
+      return P;
+    }
+    function lerpAng(a, c, k) { var d = c - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return a + d * k; }
+    function sendReports() {
+      [["scanner", { x: 16.7, z: 2.45 }, 0], ["analyst", { x: 16.7, z: 0.95 }, 4.5]].forEach(function (r) {
+        var vb = botById(r[0]); if (!vb) return;
+        var vu = vb.group.userData;
+        botGroups.forEach(function (o) { if (o.group.userData.listenTo === r[0]) o.group.userData.listenTo = null; });
+        vu.listenTo = null; vu.onDone = null;
+        vu.reportDelay = r[2]; vu.reportSpot = r[1];
+      });
+    }
+    function setTrading(on) {
+      on = !!on;
+      try { localStorage.setItem(TRADE_KEY, on ? "1" : "0"); } catch (e) {}
+      if (on === trading) return;
+      trading = on;
+      var b = botById("trader"); if (!b) return;
+      var u = b.group.userData;
+      if (on) {
+        if (u.state === "sleep" || u.state === "liedown") { u.state = "getup"; u.t = 0; }
+        else planTo(b, STATIONS.trader, "work");
+        b.def.status = "Waking up for the trading session";
+      } else {
+        u.listenTo = null;
+        if (u.state === "getup") { u.state = "liedown"; u.t = 0; }
+        else if (u.state !== "sleep" && u.state !== "liedown") { u.goal = TRADER.side; planTo(b, TRADER.side, "bed"); }
+        TRADER.screen(false);
+        TRADER.reports.forEach(function (m) { m.visible = false; });
+        b.def.status = "Heading back to bed — trading stopped";
+      }
+      if (selected === "trader") bubbleStatus.textContent = b.def.status;
+    }
+    function placeLying(b) {
+      var g = b.group;
+      g.position.set(TRADER.lie.x, TRADER.lie.y, TRADER.lie.z);
+      g.rotation.set(-Math.PI / 2, Math.PI, 0);
+    }
+    function traderUpdate(b, dt) {
+      var u = b.group.userData, g = b.group, P = basePose(b), k = 1 - Math.exp(-7 * dt), e;
+      var bl = TRADER.blanket;
+      var wantCover = (u.state === "sleep" || u.state === "liedown") ? 1 : 0;
+      bl.scale.z += (Math.max(0.18, wantCover) - bl.scale.z) * Math.min(1, dt * 2.5);
+      TRADER.zzz.visible = u.state === "sleep";
+      if (TRADER.zzz.visible) { TRADER.zzz.position.y = 1.55 + 0.12 * Math.sin(u.phase * 1.4); TRADER.zzz.material.opacity = 0.55 + 0.35 * Math.sin(u.phase * 1.4); }
+      if (u.state === "sleep") {
+        placeLying(b);
+        applyPose(b, sleepPose(b, P), k);
+        return true;
+      }
+      if (u.state === "getup") {
+        u.t += dt / 2.4; if (u.t > 1) u.t = 1;
+        e = u.t * u.t * (3 - 2 * u.t);
+        g.rotation.x = -Math.PI / 2 * (1 - e);
+        g.rotation.y = lerpAng(Math.PI, -Math.PI / 2, e);
+        g.position.set(TRADER.lie.x + (TRADER.side.x - TRADER.lie.x) * e, TRADER.lie.y + (0.28 - TRADER.lie.y) * e, TRADER.lie.z + (TRADER.side.z - TRADER.lie.z) * e);
+        P.kneeL = P.kneeR = 0.9 * Math.sin(e * Math.PI); P.legL = P.legR = -0.9 * Math.sin(e * Math.PI); P.torsoX = 0.4 * Math.sin(e * Math.PI);
+        P.armLx = -0.6 * Math.sin(e * Math.PI); P.armRx = -0.2 + 0.2 * e;
+        applyPose(b, P, 1 - Math.exp(-10 * dt));
+        if (u.t >= 1) {
+          g.rotation.x = 0; u.curVias = []; u.lastRegion = "quarters"; u.hold = true;
+          planTo(b, STATIONS.trader, "work");
+          b.def.status = "Reading reports from Market Scanner and Technical Analyst";
+          if (selected === "trader") bubbleStatus.textContent = b.def.status;
+          TRADER.screen(true);
+          sendReports();
+        }
+        return true;
+      }
+      if (u.state === "liedown") {
+        if (u.t === 0) { u.from = { x: g.position.x, z: g.position.z, ry: g.rotation.y }; }
+        u.t += dt / 2.4; if (u.t > 1) u.t = 1;
+        e = u.t * u.t * (3 - 2 * u.t);
+        var f = u.from;
+        g.rotation.x = -Math.PI / 2 * e;
+        g.rotation.y = lerpAng(f.ry, Math.PI, e);
+        g.position.set(f.x + (TRADER.lie.x - f.x) * e, 0.28 + (TRADER.lie.y - 0.28) * e, f.z + (TRADER.lie.z - f.z) * e);
+        P.kneeL = P.kneeR = 0.9 * Math.sin(e * Math.PI); P.legL = P.legR = -0.9 * Math.sin(e * Math.PI);
+        applyPose(b, P, 1 - Math.exp(-10 * dt));
+        if (u.t >= 1) { u.state = "sleep"; b.def.status = "Asleep until trading starts"; if (selected === "trader") bubbleStatus.textContent = b.def.status; }
+        return true;
+      }
+      if (!trading && u.state === "work") { u.goal = TRADER.side; planTo(b, TRADER.side, "bed"); }
+      if (trading && u.state === "work" && !u.listenTo) b.def.status = "Watching the paper-trading terminal";
+      return false;
+    }
+    function reportTick(b, dt) {
+      var u = b.group.userData;
+      if (u.reportSpot == null) return;
+      u.reportDelay -= dt;
+      if (u.reportDelay > 0) return;
+      if (!trading) { u.reportSpot = null; return; }
+      if (u.state === "talk") return; // finish the current chat first
+      var spot = u.reportSpot; u.reportSpot = null;
+      u.goal = spot; u.curVias = u.state === "work" ? (STATIONS[b.def.id].vias || []) : [];
+      planTo(b, spot, "report");
+    }
+
     // start everyone at their station, already working
     botGroups.forEach(function (b) {
       var st = STATIONS[b.def.id], u = b.group.userData;
@@ -2909,10 +3118,21 @@
       u.lastRegion = regionAt(st.x, st.z);
       var P = jobPose(basePose(b), st.pose, u.phase, b);
       b.limbs.cur = P; applyPose(b, P, 1);
+      if (b.def.id === "trader") {
+        b.group.rotation.order = "YXZ";
+        u.hold = true;
+        if (trading) { TRADER.screen(true); TRADER.reports.forEach(function (m) { m.visible = true; }); b.def.status = "Watching the paper-trading terminal"; }
+        else { u.state = "sleep"; placeLying(b); TRADER.blanket.scale.z = 1; var SP = sleepPose(b, basePose(b)); b.limbs.cur = SP; applyPose(b, SP, 1); }
+      }
+      if (b.def.id === "scanner" || b.def.id === "analyst") {
+        var paperMesh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.012, 0.22), new THREE.MeshStandardMaterial({ color: 0xe8dcc0, roughness: 0.95 }));
+        paperMesh.position.set(0, -0.33, 0.09); paperMesh.rotation.x = 0.5; paperMesh.visible = false;
+        b.limbs.armR.elbow.add(paperMesh); u.paper = paperMesh;
+      }
     });
 
     function updateWorld(dt) {
-      botGroups.forEach(function (b) { updateBot(b, dt); });
+      botGroups.forEach(function (b) { reportTick(b, dt); updateBot(b, dt); });
       updateDoors(dt);
     }
 
@@ -2920,7 +3140,7 @@
     window.__vault = {
       bots: botGroups, doors: doorObjs, cam: cam, camGoal: camGoal, planTo: planTo, STATIONS: STATIONS, VISITS: VISITS,
       setOpen: function (o) { mcSetOpen(o); }, updateWorld: updateWorld, blockedAt: blockedAt, regionAt: regionAt, SOLIDS: SOLIDS,
-      crossPoints: crossPoints, botById: botById
+      crossPoints: crossPoints, botById: botById, setTrading: setTrading, isTrading: function () { return trading; }
     };
 
     var clock = new THREE.Clock();
@@ -3255,6 +3475,7 @@
     });
     document.getElementById("mc-start").addEventListener("click", function () {
       if (!window.confirm("Start paper trading on TradingView only (no real money)? I will reply in your Grok Bot chat. Press Stop at any time.")) return;
+      if (window.__vault && window.__vault.setTrading) window.__vault.setTrading(true);
       mcSendToScout({
         source: "Operations Vault Mission Control",
         command: "start-paper-trading",
@@ -3263,6 +3484,7 @@
     });
     document.getElementById("mc-stop").addEventListener("click", function () {
       if (!window.confirm("Stop paper trading now? No new paper orders will be placed.")) return;
+      if (window.__vault && window.__vault.setTrading) window.__vault.setTrading(false);
       mcSendToScout({
         source: "Operations Vault Mission Control",
         command: "stop-paper-trading",

@@ -5,6 +5,11 @@
       "text": "Every mission that is started after they are finished I want them to go in the complete section so I know when it is done",
       "completedAt": "2026-11-12T23:04:04Z",
       "note": "Finished missions now move to Complete automatically"
+    },
+    {
+      "text": "Now cretae a room for the trader Bot and make him sleep in a bed in his own room and when we are ready to trade he will get up and go to a computer in his room. When he waked up he gets a report from the analyst and market scanner.",
+      "completedAt": "2026-11-12T23:17:14Z",
+      "note": "Paper Trader now has his own quarters with a cot and a trading desk; he wakes on Start paper trading and gets reports from Market Scanner and Technical Analyst"
     }
   ]
 }
