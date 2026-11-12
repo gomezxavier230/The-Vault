@@ -1,0 +1,10 @@
+{
+  "about": "Missions Scout has finished. The Operations Vault window moves matching Pending missions to Complete.",
+  "complete": [
+    {
+      "text": "Every mission that is started after they are finished I want them to go in the complete section so I know when it is done",
+      "completedAt": "2026-11-12T23:04:04Z",
+      "note": "Finished missions now move to Complete automatically"
+    }
+  ]
+}

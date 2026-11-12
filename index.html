@@ -246,6 +246,8 @@
     .mc-item .mc-when { font-size: 10px; color: #9a8f78; margin-bottom: 4px; }
     .mc-item .mc-body-text { font-size: 13px; color: #f0e6c8; white-space: pre-wrap; line-height: 1.4; }
     .mc-item .mc-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .mc-item .mc-done-tag { font-size: 10px; color: #8fc46a; letter-spacing: 1px; }
+    .mc-tabs .mc-count { opacity: 0.75; margin-left: 4px; }
     .mc-empty { font-size: 12px; color: #9a8f78; padding: 12px 2px; }
     #mc-toast {
       display: none;
@@ -2985,7 +2987,13 @@
       var items = data[mcTab] || [];
       var tabs = document.querySelectorAll(".mc-tabs button");
       for (var i = 0; i < tabs.length; i++) {
-        tabs[i].className = tabs[i].getAttribute("data-tab") === mcTab ? "on" : "";
+        var tname = tabs[i].getAttribute("data-tab");
+        tabs[i].className = tname === mcTab ? "on" : "";
+        tabs[i].textContent = (tname === "pending" ? "Pending" : "Complete");
+        var cnt = document.createElement("span");
+        cnt.className = "mc-count";
+        cnt.textContent = "(" + ((data[tname] || []).length) + ")";
+        tabs[i].appendChild(cnt);
       }
       if (!items.length) {
         list.innerHTML = mcTab === "pending"
@@ -2999,12 +3007,20 @@
         div.className = "mc-item";
         var when = document.createElement("div");
         when.className = "mc-when";
-        when.textContent = mcWhen(item.addedAt);
+        when.textContent = mcTab === "complete" && item.completedAt
+          ? "Started " + mcWhen(item.addedAt) + "  \u2022  Done " + mcWhen(item.completedAt)
+          : mcWhen(item.addedAt);
         var body = document.createElement("div");
         body.className = "mc-body-text";
         body.textContent = item.text;
         div.appendChild(when);
         div.appendChild(body);
+        if (mcTab === "complete" && item.note) {
+          var note = document.createElement("div");
+          note.className = "mc-done-tag";
+          note.textContent = "\u2714 " + item.note;
+          div.appendChild(note);
+        }
         if (mcTab === "pending") {
           var row = document.createElement("div");
           row.className = "mc-row";
@@ -3017,6 +3033,14 @@
             mcSave(d);
             mcRender();
           });
+          var done = document.createElement("button");
+          done.type = "button";
+          done.textContent = "Mark complete";
+          done.addEventListener("click", function () {
+            mcMoveToComplete(item.id, Date.now(), "Marked complete here");
+            mcRender();
+          });
+          row.appendChild(done);
           row.appendChild(rm);
           div.appendChild(row);
         }
@@ -3073,6 +3097,54 @@
       mcSave(d);
       mcTab = "pending";
       mcRender();
+    }
+    // Finished missions move from Pending to Complete. Scout records finished
+    // missions in missions.json in the repo; the window checks it on load,
+    // every few minutes, and when you open the Complete tab.
+    function mcNorm(t) { return String(t || "").toLowerCase().replace(/\s+/g, " ").trim(); }
+    function mcMoveToComplete(id, completedAt, note) {
+      var d = mcLoad();
+      var idx = -1;
+      for (var i = 0; i < d.pending.length; i++) { if (d.pending[i].id === id) { idx = i; break; } }
+      if (idx < 0) return false;
+      var it = d.pending.splice(idx, 1)[0];
+      it.completedAt = completedAt || Date.now();
+      if (note) it.note = note;
+      d.complete.unshift(it);
+      mcSave(d);
+      return true;
+    }
+    var mcSyncBusy = false;
+    function mcSyncDone() {
+      if (mcSyncBusy) return;
+      var d0 = mcLoad();
+      if (!d0.pending.length) return;
+      mcSyncBusy = true;
+      var url = (mcOnLocalServer() ? "missions.json" : "https://raw.githubusercontent.com/gomezxavier230/The-Vault/main/missions.json") + "?t=" + Date.now();
+      fetch(url, { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        mcSyncBusy = false;
+        if (!j || !Array.isArray(j.complete)) return;
+        var d = mcLoad();
+        var moved = 0;
+        d.pending.slice().forEach(function (p) {
+          var pt = mcNorm(p.text);
+          for (var k = 0; k < j.complete.length; k++) {
+            var c = j.complete[k] || {};
+            var hit = (c.id && c.id === p.id) ||
+              (c.text && mcNorm(c.text) === pt) ||
+              (c.match && pt.indexOf(mcNorm(c.match)) !== -1);
+            if (!hit) continue;
+            var ts = c.completedAt ? Date.parse(c.completedAt) : NaN;
+            if (!isNaN(ts) && p.addedAt && ts < p.addedAt) continue; // finished before this one started
+            if (mcMoveToComplete(p.id, isNaN(ts) ? Date.now() : ts, c.note || "Finished by Scout")) moved++;
+            break;
+          }
+        });
+        if (moved) {
+          mcRender();
+          mcToast(moved === 1 ? "A mission finished. Moved to Complete." : moved + " missions finished. Moved to Complete.");
+        }
+      }).catch(function () { mcSyncBusy = false; });
     }
     function mcOnLocalServer() {
       return location.protocol !== "file:" && /^(localhost|127\.0\.0\.1)$/i.test(location.hostname);
@@ -3201,6 +3273,7 @@
       btn.addEventListener("click", function () {
         mcTab = btn.getAttribute("data-tab");
         mcRender();
+        mcSyncDone();
       });
     });
     function mcSetOpen(open) {
@@ -3214,6 +3287,8 @@
       document.getElementById("mc-connect-body").classList.add("open");
     }
     mcRender();
+    mcSyncDone();
+    setInterval(mcSyncDone, 5 * 60 * 1000);
 
 
     applyCam();
