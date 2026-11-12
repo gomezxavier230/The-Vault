@@ -2,24 +2,22 @@
   "about": "Missions Scout has finished. The Operations Vault window moves matching Pending missions to Complete.",
   "complete": [
     {
+      "title": "Complete log: Last 24 hours, Past 7 days, All time",
+      "text": "After every 24hrs I want the mission complete log to move into a sub catigory of the past 7 days then all time]. once a 24 hour period has finsihed I want any finished missions to move inot either the last 7 days log catigory or the all missions complete catigory I want every mission log to have a date and title and then a dropdown of the mission.",
+      "completedAt": "2026-11-12T23:58:00Z",
+      "note": "Complete tab now groups logs into Last 24 hours, Past 7 days, and All time, each with date, title, and a dropdown"
+    },
+    {
       "text": "Every mission that is started after they are finished I want them to go in the complete section so I know when it is done",
       "completedAt": "2026-11-12T23:04:04Z",
-      "note": "Finished missions now move to Complete automatically"
+      "note": "Finished missions now move to Complete automatically",
+      "title": "Finished missions move to Complete"
     },
     {
       "text": "Now cretae a room for the trader Bot and make him sleep in a bed in his own room and when we are ready to trade he will get up and go to a computer in his room. When he waked up he gets a report from the analyst and market scanner.",
       "completedAt": "2026-11-12T23:17:14Z",
-      "note": "Paper Trader now has his own quarters with a cot and a trading desk; he wakes on Start paper trading and gets reports from Market Scanner and Technical Analyst"
-    },
-    {
-      "match": "smart money",
-      "completedAt": "2026-11-12T23:40:00Z",
-      "note": "Paper Trader finished its Deliberate Entry Rules v1 from Technical Analyst's playbook and Researcher's study pack. Study only, no orders placed."
-    },
-    {
-      "match": "smc",
-      "completedAt": "2026-11-12T23:40:00Z",
-      "note": "Paper Trader finished its Deliberate Entry Rules v1 from Technical Analyst's playbook and Researcher's study pack. Study only, no orders placed."
+      "note": "Paper Trader now has his own quarters with a cot and a trading desk; he wakes on Start paper trading and gets reports from Market Scanner and Technical Analyst",
+      "title": "Paper Trader quarters, cot and trading desk"
     }
   ]
 }

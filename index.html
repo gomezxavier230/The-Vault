@@ -249,6 +249,26 @@
     .mc-item .mc-done-tag { font-size: 10px; color: #8fc46a; letter-spacing: 1px; }
     .mc-tabs .mc-count { opacity: 0.75; margin-left: 4px; }
     .mc-empty { font-size: 12px; color: #9a8f78; padding: 12px 2px; }
+    .mc-group { margin: 8px 0 10px; }
+    .mc-group > summary {
+      cursor: pointer; list-style: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: #e6a23c; padding: 6px 4px; border-bottom: 1px dashed #3a3024; user-select: none;
+    }
+    .mc-group > summary::-webkit-details-marker { display: none; }
+    .mc-group > summary::before { content: "\25B8"; display: inline-block; width: 14px; transition: transform 0.15s; }
+    .mc-group[open] > summary::before { transform: rotate(90deg); }
+    .mc-group > summary .mc-count { color: #9a8f78; letter-spacing: 1px; }
+    .mc-group .mc-group-body { padding-top: 8px; }
+    .mc-group .mc-empty { padding: 6px 4px; }
+    .mc-log { padding: 0; }
+    .mc-log > summary { cursor: pointer; list-style: none; padding: 8px 10px; display: block; }
+    .mc-log > summary::-webkit-details-marker { display: none; }
+    .mc-log .mc-log-date { font-size: 10px; color: #9a8f78; letter-spacing: 1px; }
+    .mc-log .mc-log-title { font-size: 13px; color: #f0e6c8; margin-top: 2px; line-height: 1.35; }
+    .mc-log .mc-log-title::before { content: "\25B8  "; color: #e6a23c; }
+    .mc-log[open] .mc-log-title::before { content: "\25BE  "; }
+    .mc-log .mc-log-detail { padding: 0 10px 10px; border-top: 1px solid #2a241b; margin-top: 2px; }
+    .mc-log .mc-log-detail .mc-when { margin: 8px 0 4px; }
     #mc-toast {
       display: none;
       font-size: 11px;
@@ -3215,6 +3235,7 @@
         cnt.textContent = "(" + ((data[tname] || []).length) + ")";
         tabs[i].appendChild(cnt);
       }
+      if (mcTab === "complete") { mcRenderComplete(list, items); return; }
       if (!items.length) {
         list.innerHTML = mcTab === "pending"
           ? '<p class="mc-empty">No pending missions yet. Type one above and add it to watch it here.</p>'
@@ -3265,6 +3286,89 @@
           div.appendChild(row);
         }
         list.appendChild(div);
+      });
+    }
+    // Complete log: finished missions sit in "Last 24 hours" until that
+    // 24-hour period is over, then move to "Past 7 days", then "All time".
+    var MC_DAY = 24 * 60 * 60 * 1000;
+    var mcGroupOpen = { day: true, week: false, all: false };
+    function mcDate(ts) {
+      try {
+        return new Date(ts).toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", year: "numeric" });
+      } catch (e) { return ""; }
+    }
+    function mcTitle(item) {
+      if (item.title) return String(item.title);
+      var t = String(item.text || "").replace(/\s+/g, " ").trim();
+      var m = t.match(/^(.{12,80}?[.!?])(\s|$)/);
+      var first = m ? m[1] : t;
+      if (first.length > 70) first = first.slice(0, 67).replace(/\s+\S*$/, "") + "\u2026";
+      return first || "Mission";
+    }
+    function mcRenderComplete(list, items) {
+      list.innerHTML = "";
+      var now = Date.now();
+      var groups = [
+        { key: "day", name: "Last 24 hours", items: [] },
+        { key: "week", name: "Past 7 days", items: [] },
+        { key: "all", name: "All time", items: [] },
+      ];
+      items.slice().sort(function (a, b) { return (b.completedAt || 0) - (a.completedAt || 0); }).forEach(function (it) {
+        var age = now - (it.completedAt || it.addedAt || now);
+        groups[age < MC_DAY ? 0 : age < 7 * MC_DAY ? 1 : 2].items.push(it);
+      });
+      groups.forEach(function (g) {
+        var det = document.createElement("details");
+        det.className = "mc-group";
+        if (mcGroupOpen[g.key]) det.open = true;
+        det.addEventListener("toggle", function () { mcGroupOpen[g.key] = det.open; });
+        var sum = document.createElement("summary");
+        sum.textContent = g.name + " ";
+        var c = document.createElement("span");
+        c.className = "mc-count";
+        c.textContent = "(" + g.items.length + ")";
+        sum.appendChild(c);
+        det.appendChild(sum);
+        var body = document.createElement("div");
+        body.className = "mc-group-body";
+        if (!g.items.length) {
+          body.innerHTML = '<p class="mc-empty">' + (items.length ? "Nothing here right now." : "No completed missions yet. Scout will record them here after work actually finishes.") + "</p>";
+        }
+        g.items.forEach(function (item) {
+          var log = document.createElement("details");
+          log.className = "mc-item mc-log";
+          var s = document.createElement("summary");
+          var dt = document.createElement("div");
+          dt.className = "mc-log-date";
+          dt.textContent = mcDate(item.completedAt || item.addedAt);
+          var ti = document.createElement("div");
+          ti.className = "mc-log-title";
+          ti.textContent = mcTitle(item);
+          s.appendChild(dt);
+          s.appendChild(ti);
+          log.appendChild(s);
+          var d = document.createElement("div");
+          d.className = "mc-log-detail";
+          var when = document.createElement("div");
+          when.className = "mc-when";
+          when.textContent = "Started " + mcWhen(item.addedAt) + "  \u2022  Done " + mcWhen(item.completedAt);
+          var tx = document.createElement("div");
+          tx.className = "mc-body-text";
+          tx.textContent = item.text;
+          d.appendChild(when);
+          d.appendChild(tx);
+          if (item.note) {
+            var note = document.createElement("div");
+            note.className = "mc-done-tag";
+            note.style.marginTop = "6px";
+            note.textContent = "\u2714 " + item.note;
+            d.appendChild(note);
+          }
+          log.appendChild(d);
+          body.appendChild(log);
+        });
+        det.appendChild(body);
+        list.appendChild(det);
       });
     }
     function mcCopyText(text) {
@@ -3322,7 +3426,7 @@
     // missions in missions.json in the repo; the window checks it on load,
     // every few minutes, and when you open the Complete tab.
     function mcNorm(t) { return String(t || "").toLowerCase().replace(/\s+/g, " ").trim(); }
-    function mcMoveToComplete(id, completedAt, note) {
+    function mcMoveToComplete(id, completedAt, note, title) {
       var d = mcLoad();
       var idx = -1;
       for (var i = 0; i < d.pending.length; i++) { if (d.pending[i].id === id) { idx = i; break; } }
@@ -3330,6 +3434,7 @@
       var it = d.pending.splice(idx, 1)[0];
       it.completedAt = completedAt || Date.now();
       if (note) it.note = note;
+      if (title) it.title = title;
       d.complete.unshift(it);
       mcSave(d);
       return true;
@@ -3356,7 +3461,7 @@
             if (!hit) continue;
             var ts = c.completedAt ? Date.parse(c.completedAt) : NaN;
             if (!isNaN(ts) && p.addedAt && ts < p.addedAt) continue; // finished before this one started
-            if (mcMoveToComplete(p.id, isNaN(ts) ? Date.now() : ts, c.note || "Finished by Scout")) moved++;
+            if (mcMoveToComplete(p.id, isNaN(ts) ? Date.now() : ts, c.note || "Finished by Scout", c.title)) moved++;
             break;
           }
         });
@@ -3511,6 +3616,7 @@
     mcRender();
     mcSyncDone();
     setInterval(mcSyncDone, 5 * 60 * 1000);
+    setInterval(function () { if (mcTab === "complete") mcRender(); }, 60 * 1000);
 
 
     applyCam();
