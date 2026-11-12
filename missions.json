@@ -10,6 +10,16 @@
       "text": "Now cretae a room for the trader Bot and make him sleep in a bed in his own room and when we are ready to trade he will get up and go to a computer in his room. When he waked up he gets a report from the analyst and market scanner.",
       "completedAt": "2026-11-12T23:17:14Z",
       "note": "Paper Trader now has his own quarters with a cot and a trading desk; he wakes on Start paper trading and gets reports from Market Scanner and Technical Analyst"
+    },
+    {
+      "match": "smart money",
+      "completedAt": "2026-11-12T23:40:00Z",
+      "note": "Paper Trader finished its Deliberate Entry Rules v1 from Technical Analyst's playbook and Researcher's study pack. Study only, no orders placed."
+    },
+    {
+      "match": "smc",
+      "completedAt": "2026-11-12T23:40:00Z",
+      "note": "Paper Trader finished its Deliberate Entry Rules v1 from Technical Analyst's playbook and Researcher's study pack. Study only, no orders placed."
     }
   ]
 }
