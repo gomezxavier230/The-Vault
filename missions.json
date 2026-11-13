@@ -48,6 +48,11 @@
       "match": "table with chairs",
       "completedAt": "2026-11-13T00:46:32Z",
       "note": "Added a round scrap-wood crew table on a rusted pedestal in the middle of the Atrium, with 8 chairs (one per teammate, each with a backrest patch in that teammate's colour and a stencilled name plate on the table), a hurricane lamp centrepiece; teammates now walk around it."
+    },
+    {
+      "title": "YouTube Division building",
+      "completedAt": "2026-11-13T01:18:36Z",
+      "note": "Added a separate YouTube Division building east of the Trading HQ, joined by a covered walkway, with rooms for Video Analyzer, Creator, and YouSEE YT, plus a research desk. Crew sidebar lists the three bots under YouTube Division. Nothing uploads without approval."
     }
   ]
 }

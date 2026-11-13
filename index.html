@@ -62,6 +62,20 @@
       cursor: pointer;
     }
     #reset:hover { background: rgba(230,162,60,0.15); }
+    #yt-view {
+      pointer-events: auto;
+      margin-top: 8px;
+      margin-left: 6px;
+      background: transparent;
+      color: #e6a23c;
+      border: 1px solid #a36f1f;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font: 600 11px inherit;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+    }
+    #yt-view:hover { background: rgba(230,162,60,0.15); }
     #bubble {
       position: absolute;
       transform: translate(-50%, -130%);
@@ -364,6 +378,13 @@
     body.crew-closed #crew header h2 { display: none; }
     body.crew-closed .crew-info { display: none; }
     body.crew-closed .crew-row { justify-content: center; padding: 6px 2px; }
+    .crew-group {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em;
+      color: #e6a23c; text-transform: uppercase;
+      padding: 10px 8px 4px; border-top: 1px solid #3a3024;
+      margin-top: 4px;
+    }
+    body.crew-closed .crew-group { display: none; }
     #top { left: 296px; }
     body.crew-closed #top { left: 92px; }
 
@@ -379,7 +400,7 @@
       <div id="hint">
         Roof is open · Scroll to zoom · Drag to look around<br />
         Click a teammate to see what they are doing
-        <div><button id="reset" type="button">Reset view</button></div>
+        <div><button id="reset" type="button">Reset view</button><button id="yt-view" type="button">YouTube Division</button></div>
       </div>
     </div>
     <div id="names"></div>
@@ -488,6 +509,11 @@
     water:  { name: "WATER WORKS",x: 9.8,   z: 3.6,  w: 5.2, d: 5.2, color: 0x16201e },
     store:  { name: "STORAGE",    x: 17.2,  z: -2.8, w: 4,   d: 6,   color: 0x1e1a16 },
     quarters: { name: "TRADER",   x: 17.2,  z: 3.2,  w: 4,   d: 6,   color: 0x201a18 },
+    ythall:   { name: "REEL HALL",     x: 32.2, z: 1.2,  w: 16, d: 3.2, color: 0x221c18 },
+    ytanal:   { name: "VIDEO ANALYZER", x: 28.2, z: -4.2, w: 8,  d: 7.6, color: 0x1a2220 },
+    ytcreate: { name: "CREATOR BAY",   x: 36.2, z: -4.2, w: 8,  d: 7.6, color: 0x241816 },
+    ytsee:    { name: "YOUSEE YT",     x: 28.2, z: 6.4,  w: 8,  d: 7.2, color: 0x221c14 },
+    ytres:    { name: "YT RESEARCH",   x: 36.2, z: 6.4,  w: 8,  d: 7.2, color: 0x1c2018 },
   };
 
   var BOTS = [
@@ -499,6 +525,9 @@
     { id: "risk", name: "Risk Manager", role: "Risk Manager", status: "On standby", kind: "warden", room: "risk", x: 13.6, z: 9.2 },
     { id: "researcher", name: "Researcher", role: "Web researcher", status: "Ready to search", kind: "runner", room: "res", x: 4.2, z: 11.4 },
     { id: "trader", name: "Paper Trader", role: "Paper Trader", status: "Asleep until trading starts", kind: "trader", room: "quarters", x: 18.4, z: 4.0 },
+    { id: "vanalyzer", name: "Video Analyzer", role: "Video Analyzer", status: "Watching for standout moments", kind: "scanner", room: "ytanal", x: 28.2, z: -5.2, div: "youtube" },
+    { id: "creator", name: "Creator", role: "Shorts editor", status: "Cutting vertical shorts", kind: "tech", room: "ytcreate", x: 37.0, z: -4.2, div: "youtube" },
+    { id: "yousee", name: "YouSEE YT", role: "Channel manager", status: "Waiting for approval to upload", kind: "warden", room: "ytsee", x: 28.2, z: 7.4, div: "youtube" },
   ];
 
   var LOOKS = {
@@ -549,6 +578,24 @@
       hairStyle: "swept", beard: "short", beardColor: 0x3a2a1c,
       shirt: 0x8a3a2a, pants: 0x3e3a30, boots: 0x3a281a, bootStyle: "mid",
       sleeve: 0x5a3a2a, rolled: true, cuff: 0x8a3a2a, hands: "fingerless", gloves: 0x4a3424
+    },
+    vanalyzer: {
+      scale: 1.0, broad: 0.98, skin: 0xc9a07c, eyes: 0x2a3a3a, hair: 0x2c2420,
+      hairStyle: "neat", beard: "none",
+      shirt: 0x3a6a62, pants: 0x2e322e, boots: 0x3a2a20, bootStyle: "lace",
+      sleeve: 0x2a4a46, hands: "bare"
+    },
+    creator: {
+      scale: 0.97, broad: 0.96, skin: 0xd4a888, eyes: 0x3a2820, hair: 0x6a3a22,
+      hairStyle: "wind", beard: "light", beardColor: 0x5a3220,
+      shirt: 0x8a3e38, pants: 0x4a3e34, boots: 0x4a3020, bootStyle: "mid",
+      sleeve: 0xb88870, rolled: true, cuff: 0x8a3e38, hands: "bare"
+    },
+    yousee: {
+      scale: 1.02, broad: 1.04, skin: 0xc49468, eyes: 0x2a2420, hair: 0x3a342c,
+      hairStyle: "crop", beard: "short", beardColor: 0x3a342c,
+      shirt: 0xc4a24a, pants: 0x2a2824, boots: 0x2a2018, bootStyle: "oxford",
+      sleeve: 0x5a4a28, hands: "fingerless", gloves: 0x4a3a24
     }
   };
 
@@ -561,6 +608,7 @@
     var cam = { radius: 38, phi: 0.68, theta: 0.42, tx: 0, ty: 0.6, tz: 0.5 };
     var camGoal = { radius: 38, phi: 0.68, theta: 0.42, tx: 0, ty: 0.6, tz: 0.5 };
     var HOME = { radius: 38, phi: 0.68, theta: 0.42, tx: 0, ty: 0.6, tz: 0.5 };
+    var YT_HOME = { radius: 30, phi: 0.75, theta: -0.75, tx: 32.2, ty: 0.8, tz: 1.0 };
 
     var renderer;
     try {
@@ -603,11 +651,11 @@
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.camera.near = 5;
-    sun.shadow.camera.far = 140;
+    sun.shadow.camera.far = 160;
     sun.shadow.camera.left = -50;
-    sun.shadow.camera.right = 50;
-    sun.shadow.camera.top = 50;
-    sun.shadow.camera.bottom = -50;
+    sun.shadow.camera.right = 70;
+    sun.shadow.camera.top = 55;
+    sun.shadow.camera.bottom = -55;
     sun.shadow.bias = -0.0008;
     scene.add(sun);
     scene.add(new THREE.AmbientLight(0xffe0b0, 0.1));
@@ -705,7 +753,9 @@
     for (var i = 0; i < 40; i++) {
       var a = rnd() * Math.PI * 2;
       var rd = 28 + rnd() * 90;
-      rock(Math.cos(a) * rd, Math.sin(a) * rd, 0.4 + rnd() * 1.3);
+      var rx = Math.cos(a) * rd, rz = Math.sin(a) * rd;
+      if (rx > -26 && rx < 48 && rz > -22 && rz < 24) continue;
+      rock(rx, rz, 0.4 + rnd() * 1.3);
     }
 
     function tree(x, z) {
@@ -759,7 +809,7 @@
 
     // barrels
     var barrelM = new THREE.MeshStandardMaterial({ color: PAL.rust, metalness: 0.3, roughness: 0.6 });
-    [[36, 22], [37.2, 22.6], [36.4, 23.5]].forEach(function (p) {
+    [[42.5, 13.2], [43.7, 13.8], [42.9, 14.7]].forEach(function (p) {
       var b = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.4, 1.05, 10), barrelM);
       b.position.set(p[0], 0.52, p[1]);
       b.castShadow = true;
@@ -769,7 +819,7 @@
     // --- Fence ---
     var postM = new THREE.MeshStandardMaterial({ color: PAL.rust, metalness: 0.25, roughness: 0.7 });
     var wireM = new THREE.MeshStandardMaterial({ color: PAL.steel, metalness: 0.5, roughness: 0.5 });
-    var fence = { x: 24, z: 20 };
+    var fence = { x0: -24, x1: 46, z0: -20, z1: 22 };
     function fencePost(x, z) {
       var p = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.6, 0.12), postM);
       p.position.set(x, 0.8, z);
@@ -781,27 +831,27 @@
       wmesh.position.set(x, y, z);
       scene.add(wmesh);
     }
-    for (var fx = -fence.x; fx <= fence.x; fx += 2.2) {
-      fencePost(fx, -fence.z);
-      fencePost(fx, fence.z);
+    for (var fx = fence.x0; fx <= fence.x1; fx += 2.2) {
+      fencePost(fx, fence.z0);
+      fencePost(fx, fence.z1);
     }
-    for (var fz = -fence.z + 2.2; fz < fence.z; fz += 2.2) {
-      fencePost(-fence.x, fz);
-      fencePost(fence.x, fz);
+    for (var fz = fence.z0 + 2.2; fz < fence.z1; fz += 2.2) {
+      fencePost(fence.x0, fz);
+      fencePost(fence.x1, fz);
     }
-    [-fence.z, fence.z].forEach(function (zz) {
+    [fence.z0, fence.z1].forEach(function (zz) {
       [0.5, 0.95, 1.4].forEach(function (y) {
-        fenceWire(0, zz, fence.x * 2, 0.03, y);
+        fenceWire((fence.x0 + fence.x1) / 2, zz, fence.x1 - fence.x0, 0.03, y);
       });
     });
-    [-fence.x, fence.x].forEach(function (xx) {
+    [fence.x0, fence.x1].forEach(function (xx) {
       [0.5, 0.95, 1.4].forEach(function (y) {
-        fenceWire(xx, 0, 0.03, fence.z * 2, y);
+        fenceWire(xx, (fence.z0 + fence.z1) / 2, 0.03, fence.z1 - fence.z0, y);
       });
     });
     // gate opening on south
     var gateL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.2, 0.2), postM);
-    gateL.position.set(-2.2, 1.1, fence.z);
+    gateL.position.set(-2.2, 1.1, fence.z1);
     scene.add(gateL);
     var gateR = gateL.clone();
     gateR.position.x = 2.2;
@@ -855,6 +905,13 @@
     var WALL_H = 3.6;
     // pad / slab
     box(concM, 42, 0.35, 34, 0, 0.1, 1, building);
+    // YouTube Division pad (separate slab to the east; seams do not overlap the trading pad)
+    box(concM, 16.6, 0.35, 18.8, 32.3, 0.1, 1.0, building);
+    // walkway / path pads in the gap and around the south-east corner
+    box(concM, 2.95, 0.35, 3.4, 22.525, 0.1, 1.2, building);
+    box(concM, 3.1, 0.35, 13.2, 22.6, 0.1, 9.5, building);
+    box(concM, 3.1, 0.32, 2.7, 22.6, 0.085, 17.5, building);
+    box(concM, 18.7, 0.32, 0.75, 11.7, 0.085, 18.425, building);
 
     // ===== Layout as data, so geometry and collision always agree =====
     var WALL_T = 0.38;
@@ -882,6 +939,13 @@
       water:  { x0: 7.2,   x1: 12.4,  z0: 1.0,   z1: 6.2 },
       store:  { x0: 15.2,  x1: 19.2,  z0: -5.8,  z1: 0.2 },
       quarters: { x0: 15.2, x1: 19.2, z0: 0.2,   z1: 6.2 },
+      // YouTube Division (separate building to the east)
+      ytwalk:   { x0: 19.2, x1: 24.2, z0: -0.4,  z1: 2.8 },
+      ythall:   { x0: 24.2, x1: 40.2, z0: -0.4,  z1: 2.8 },
+      ytanal:   { x0: 24.2, x1: 32.2, z0: -8.0,  z1: -0.4 },
+      ytcreate: { x0: 32.2, x1: 40.2, z0: -8.0,  z1: -0.4 },
+      ytsee:    { x0: 24.2, x1: 32.2, z0: 2.8,   z1: 10.0 },
+      ytres:    { x0: 32.2, x1: 40.2, z0: 2.8,   z1: 10.0 },
     };
     var ROOM_STYLE = {
       hub:    { paint: 0x9a5a28, light: 0xffc27a, floor: 0x8a7458, sign: "01  OVERSEER", lit: true, inlay: 0xc0782c },
@@ -903,6 +967,12 @@
       water:  { paint: 0x3a6a5a, light: 0xb0ffe0, floor: 0x66706a, sign: "12  WATER", inlay: 0x3a8a70 },
       store:  { paint: 0x6a4a6a, light: 0xffd0c0, floor: 0x726660, sign: "13  STORAGE", inlay: 0x7e4e7a },
       quarters: { paint: 0x7a3a2a, light: 0xffc8a0, floor: 0x7a6656, sign: "14  TRADER", inlay: 0x9a4a30 },
+      ytwalk:   { paint: 0x4a4440, light: 0xffa050, floor: 0x6a6258, sign: "WALKWAY", path: true },
+      ythall:   { paint: 0x4a4440, light: 0xffa050, floor: 0x5e564c, sign: "REEL HALL", hall: true },
+      ytanal:   { paint: 0x2e6a62, light: 0xa0ffe0, floor: 0x66706a, sign: "15  ANALYZER", lit: true, inlay: 0x3a8a80 },
+      ytcreate: { paint: 0x8a3a3a, light: 0xffa0a0, floor: 0x7a6058, sign: "16  CREATOR", lit: true, inlay: 0xa84840 },
+      ytsee:    { paint: 0xa07a20, light: 0xffd060, floor: 0x7a7260, sign: "17  YOUSEE YT", lit: true, inlay: 0xc09a28 },
+      ytres:    { paint: 0x5a6a3e, light: 0xe0f090, floor: 0x6e7058, sign: "18  RESEARCH", lit: true, inlay: 0x7a8a3a },
     };
     var DOORS = [
       { id: "d_hub",   x: 0,     z: -7.4, axis: "x", w: 2.2, a: "hub",    b: "atrium" },
@@ -924,6 +994,12 @@
       { id: "d_gen",   x: -15.2, z: 2.6,  axis: "z", w: 1.8, a: "gen",    b: "wcor" },
       { id: "d_store", x: 15.2,  z: -2.8, axis: "z", w: 1.8, a: "ecor",   b: "store" },
       { id: "d_trader", x: 15.2, z: 3.2,  axis: "z", w: 1.8, a: "ecor",   b: "quarters" },
+      // YouTube Division (own building; reached by the east walkway)
+      { id: "d_ytentry",  x: 24.2, z: 1.2,  axis: "z", w: 2.0, a: "ytwalk",  b: "ythall" },
+      { id: "d_ytanal",   x: 28.2, z: -0.4, axis: "x", w: 1.8, a: "ythall",  b: "ytanal" },
+      { id: "d_ytcreate", x: 36.2, z: -0.4, axis: "x", w: 1.8, a: "ythall",  b: "ytcreate" },
+      { id: "d_ytsee",    x: 28.2, z:  2.8, axis: "x", w: 1.8, a: "ythall",  b: "ytsee" },
+      { id: "d_ytres",    x: 36.2, z:  2.8, axis: "x", w: 1.8, a: "ythall",  b: "ytres" },
     ];
     // axis "x": wall runs along x at constant z = c; axis "z": along z at x = c; h = wall height (blocky silhouette)
     var PERIM_H = 4.3;
@@ -957,6 +1033,16 @@
       { axis: "x", c: 1.0,   a0: 7.2,   a1: 12.4, h: 3.4 },
       // trader quarters split off the south end of storage
       { axis: "x", c: 0.2,   a0: 15.2,  a1: 19.2, h: 3.4 },
+      // YouTube Division perimeter (separate building)
+      { axis: "z", c: 24.2, a0: -8.19, a1: 10.19, h: PERIM_H, perim: true },
+      { axis: "z", c: 40.2, a0: -8.19, a1: 10.19, h: PERIM_H, perim: true },
+      { axis: "x", c: -8.0, a0: 24.01, a1: 40.39, h: PERIM_H, perim: true },
+      { axis: "x", c: 10.0, a0: 24.01, a1: 40.39, h: PERIM_H, perim: true },
+      // YouTube interior walls
+      { axis: "x", c: -0.4, a0: 24.2, a1: 40.2, h: 3.8 },
+      { axis: "x", c:  2.8, a0: 24.2, a1: 40.2, h: 3.8 },
+      { axis: "z", c: 32.2, a0: -8.0, a1: -0.4, h: 3.8 },
+      { axis: "z", c: 32.2, a0:  2.8, a1: 10.0, h: 3.8 },
     ];
     var PILLARS = [[-8.6, -7.2, -7.4, -5.8], [7.2, 8.6, -7.4, -5.8], [-8.6, -7.2, 6.2, 7.4], [7.2, 8.6, 6.2, 7.4]];
     var BOT_R = 0.3;
@@ -1302,6 +1388,7 @@
     }
     Object.keys(REGIONS).forEach(function (id) {
       var r = REGIONS[id], st = ROOM_STYLE[id];
+      if (st.path) return; // outdoor walkway: floor only, dressed by hand
       var spans = sideSpans(id);
       var paintM = new THREE.MeshStandardMaterial({ color: st.paint, map: paintTex, alphaTest: 0.35, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
       var lineM = new THREE.MeshStandardMaterial({ color: new THREE.Color(st.paint).multiplyScalar(0.55), roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -6 });
@@ -1439,10 +1526,20 @@
       box(frameDarkM, 5.4, 0.3, 0.6, 0, 3.3, 16.2, building);
     })();
 
+    // YouTube Division corner pylons (outside the rooms, same language as the trading building)
+    [[24.2, -8.0, -1, -1, 5.4, 0], [40.2, -8.0, 1, -1, 6.0, 1], [24.2, 10.0, -1, 1, 5.2, 2], [40.2, 10.0, 1, 1, 6.4, 3]].forEach(function (c) {
+      var sz = 1.2, ox = c[0] + c[2] * (sz / 2 - WALL_T / 2 + 0.03), oz = c[1] + c[3] * (sz / 2 - WALL_T / 2 + 0.03);
+      box(tintMat(0x8c7c64, 1), sz, c[4], sz, ox, c[4] / 2 + 0.28, oz, building);
+      box(blockMs[c[5]], sz + 0.06, 0.7, sz + 0.06, ox, c[4] * 0.72, oz, building);
+      box(capM, sz + 0.2, 0.16, sz + 0.2, ox, c[4] + 0.36, oz, building);
+    });
+
     // Roof (kept off so the whole floor is visible)
     var roofMat = new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 0.85, metalness: 0.08, transparent: true, opacity: 1 });
     var roof = box(roofMat, 39.2, 0.28, 32.2, 0, WALL_H + 0.5, 0.4, building);
     roof.visible = false;
+    var ytRoof = box(roofMat, 16.4, 0.28, 18.4, 32.2, WALL_H + 0.5, 1.0, building);
+    ytRoof.visible = false;
 
     // ---- furniture ----
     var woodM = new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 0.85 });
@@ -1633,8 +1730,9 @@
       [[-0.75, 0.35], [0.7, -0.45], [-0.1, 0.85]].forEach(function (q) { var m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.1, 10), mugM2); m.position.set(q[0], 0.87, q[1]); g.add(m); });
       // one chair per teammate, evenly around the table, each facing in, backrest patch in that teammate's colour
       var chairR = 1.85;
-      BOTS.forEach(function (def, i) {
-        var ang = i / BOTS.length * Math.PI * 2;
+      var tableCrew = BOTS.filter(function (d) { return d.div !== "youtube"; });
+      tableCrew.forEach(function (def, i) {
+        var ang = i / tableCrew.length * Math.PI * 2;
         var cx = Math.sin(ang) * chairR, cz = Math.cos(ang) * chairR;
         var ch = new THREE.Group(); ch.position.set(cx, 0, cz); ch.rotation.y = ang + Math.PI; g.add(ch);
         var look = LOOKS[def.id] || {};
@@ -1892,8 +1990,263 @@
       TRADER.zzz = zs;
     })();
 
+    // ===== YouTube Division: separate building to the east, joined by a covered walkway =====
+    (function () {
+      function stencilSign(w, h, lines, fg, bg) {
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        var g = c.getContext("2d");
+        g.fillStyle = bg || "#3a2e22"; g.fillRect(0, 0, w, h);
+        g.strokeStyle = "#1a140e"; g.lineWidth = Math.max(6, h / 20); g.strokeRect(4, 4, w - 8, h - 8);
+        g.fillStyle = fg || "#e6a23c"; g.textAlign = "center"; g.textBaseline = "middle";
+        var lh = h / (lines.length + 0.6);
+        g.font = "700 " + Math.floor(lh * 0.72) + "px monospace";
+        lines.forEach(function (t, i) { g.fillText(t, w / 2, lh * (i + 0.85), w - 24); });
+        g.globalCompositeOperation = "destination-out";
+        for (var k = 0; k < 80; k++) g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 5, 2 + Math.random() * 3);
+        var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+        return t;
+      }
+      function deskAt(x, z, w, d, rotY) {
+        var g = new THREE.Group(); g.position.set(x, 0.28, z); g.rotation.y = rotY || 0; building.add(g);
+        var top = new THREE.Mesh(new THREE.BoxGeometry(w, 0.07, d), woodM); top.position.y = 0.77; top.castShadow = true; g.add(top);
+        [[-w / 2 + 0.08, -d / 2 + 0.08], [w / 2 - 0.08, -d / 2 + 0.08], [-w / 2 + 0.08, d / 2 - 0.08], [w / 2 - 0.08, d / 2 - 0.08]].forEach(function (q) {
+          var l = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.74, 0.07), metalM); l.position.set(q[0], 0.37, q[1]); g.add(l);
+        });
+        return g;
+      }
+      function chairAt(x, z, rotY, color) {
+        var ch = new THREE.Group(); ch.position.set(x, 0.28, z); ch.rotation.y = rotY || 0; building.add(ch);
+        var seatM = new THREE.MeshStandardMaterial({ color: color || 0x6a4a2a, roughness: 0.7 });
+        var seat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.07, 0.5), seatM); seat.position.y = 0.44; seat.castShadow = true; ch.add(seat);
+        var back = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.7, 0.07), seatM); back.position.set(0, 0.84, -0.29); back.rotation.x = -0.08; ch.add(back);
+        [[-0.22, -0.2], [0.22, -0.2], [-0.22, 0.2], [0.22, 0.2]].forEach(function (q) {
+          var l = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.42, 0.04), metalM); l.position.set(q[0], 0.21, q[1]); ch.add(l);
+        });
+        return ch;
+      }
+      function screenTex(w, h, draw) {
+        var c = document.createElement("canvas"); c.width = w; c.height = h;
+        draw(c.getContext("2d"), w, h);
+        var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+        return t;
+      }
+
+      // covered walkway between the trading east wall and the YouTube entrance
+      var rustBeam = new THREE.MeshStandardMaterial({ color: 0x6a3a22, roughness: 0.65, metalness: 0.4 });
+      var corrM = new THREE.MeshStandardMaterial({ color: 0x6a5848, roughness: 0.7, metalness: 0.35, side: THREE.DoubleSide });
+      [[19.6, -0.15], [19.6, 2.55], [23.8, -0.15], [23.8, 2.55]].forEach(function (p) {
+        box(rustBeam, 0.12, 3.1, 0.12, p[0], 1.83, p[1], building);
+      });
+      box(rustBeam, 4.4, 0.1, 0.12, 21.7, 3.42, -0.15, building);
+      box(rustBeam, 4.4, 0.1, 0.12, 21.7, 3.42, 2.55, building);
+      box(rustBeam, 0.12, 0.1, 2.9, 19.6, 3.42, 1.2, building);
+      box(rustBeam, 0.12, 0.1, 2.9, 23.8, 3.42, 1.2, building);
+      for (var ci = 0; ci < 7; ci++) {
+        var sheet = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.04, 0.42), corrM);
+        sheet.position.set(21.7, 3.55 + (ci % 2) * 0.05, -0.15 + ci * 0.42);
+        sheet.rotation.x = 0.08;
+        sheet.castShadow = true; sheet.receiveShadow = true;
+        building.add(sheet);
+      }
+      // rusted rail along the open sides of the walkway
+      [[-0.15, 0], [2.55, 0]].forEach(function (p) {
+        box(rustBeam, 4.2, 0.04, 0.04, 21.7, 1.15, p[0], building);
+      });
+      // chevrons on the gap path pointing north toward the door
+      var chevM = new THREE.MeshStandardMaterial({ color: 0xc89a2a, roughness: 0.9 });
+      for (var cz = 3.6; cz < 16.0; cz += 1.6) {
+        box(chevM, 0.18, 0.02, 0.7, 21.7, 0.29, cz, building).castShadow = false;
+      }
+
+      // "YOUTUBE DIVISION" sign on the west face, above the entrance (inset off the wall to avoid z-fighting)
+      var ytSignTex = stencilSign(1024, 320, ["YOUTUBE DIVISION", "REEL HOUSE"], "#e6a23c", "#3a2a1c");
+      var ytSign = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 1.65), new THREE.MeshStandardMaterial({
+        map: ytSignTex, emissive: 0xffffff, emissiveMap: ytSignTex, emissiveIntensity: 0.35, roughness: 0.7, metalness: 0.2
+      }));
+      ytSign.position.set(24.2 - WALL_T / 2 - 0.06, 3.15, 1.2);
+      ytSign.rotation.y = -Math.PI / 2;
+      building.add(ytSign);
+      var ytSignFr = new THREE.Mesh(new THREE.BoxGeometry(5.6, 1.85, 0.08), metalM);
+      ytSignFr.position.set(24.2 - WALL_T / 2 - 0.02, 3.15, 1.2);
+      ytSignFr.rotation.y = -Math.PI / 2;
+      building.add(ytSignFr);
+      // smaller south-face sign, readable from the main gate path
+      var ytSignS = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.2), new THREE.MeshStandardMaterial({
+        map: ytSignTex, emissive: 0xffffff, emissiveMap: ytSignTex, emissiveIntensity: 0.3, roughness: 0.7
+      }));
+      ytSignS.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.06);
+      building.add(ytSignS);
+      var ytSignSfr = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.4, 0.08), metalM);
+      ytSignSfr.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.02);
+      building.add(ytSignSfr);
+
+      // ---- Video Analyzer: wall of review screens + desk ----
+      var analDesk = deskAt(28.2, -6.15, 2.4, 0.8, 0);
+      chairAt(28.2, -5.2, Math.PI, 0x2e5a54);
+      function analDraw(g, w, h, kind) {
+        g.fillStyle = "#061614"; g.fillRect(0, 0, w, h);
+        if (kind === "wave") {
+          g.strokeStyle = "#7aefc8"; g.lineWidth = 3; g.beginPath();
+          for (var x = 0; x <= w; x += 6) g.lineTo(x, h * 0.55 + Math.sin(x / 18) * 28 + Math.sin(x / 7) * 10);
+          g.stroke();
+          g.fillStyle = "#9aefc0"; g.font = "700 22px monospace"; g.fillText("LIVE FEED", 16, 28);
+          g.fillStyle = "#e6a23c"; g.fillRect(w - 70, 14, 10, 10); g.fillText("REC", w - 54, 26);
+        } else if (kind === "grid") {
+          g.fillStyle = "#0a1c18";
+          for (var r = 0; r < 2; r++) for (var c = 0; c < 3; c++) {
+            g.fillStyle = (r + c) % 2 ? "#12302a" : "#0c241e";
+            g.fillRect(8 + c * 82, 28 + r * 70, 74, 62);
+            g.fillStyle = "#7aefc8"; g.font = "700 16px monospace";
+            g.fillText("CLIP " + (r * 3 + c + 1), 14 + c * 82, 58 + r * 70);
+          }
+          g.fillStyle = "#c8efd8"; g.font = "700 18px monospace"; g.fillText("CANDIDATES", 12, 20);
+        } else {
+          g.strokeStyle = "#6ad0b0"; g.lineWidth = 2; g.beginPath();
+          g.moveTo(8, h * 0.7);
+          for (var i = 0; i < 12; i++) {
+            var px = 8 + i * (w - 16) / 11, py = h * (0.35 + (i === 4 || i === 9 ? 0.05 : 0.4));
+            g.lineTo(px, py); if (i === 4 || i === 9) { g.fillStyle = "#e6a23c"; g.fillRect(px - 4, 12, 8, h - 24); }
+          }
+          g.stroke();
+          g.fillStyle = "#9aefc0"; g.font = "700 18px monospace"; g.fillText("PEAK MARKS", 12, 22);
+        }
+        for (var y = 0; y < h; y += 3) { g.fillStyle = "rgba(0,0,0,0.2)"; g.fillRect(0, y, w, 1); }
+      }
+      [[-1.15, "wave"], [0, "grid"], [1.15, "peak"]].forEach(function (q) {
+        var bezel = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.72, 0.08), new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 0.6 }));
+        bezel.position.set(q[0], 1.28, -0.32); analDesk.add(bezel);
+        var tex = screenTex(256, 192, function (g, w, h) { analDraw(g, w, h, q[1]); });
+        var scr = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.62), new THREE.MeshStandardMaterial({
+          map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.7
+        }));
+        scr.position.set(q[0], 1.28, -0.365); analDesk.add(scr);
+      });
+      // north wall review bank (inset off the wall)
+      var wallZ = -8.0 + WALL_T / 2 + 0.08;
+      for (var col = 0; col < 4; col++) {
+        for (var row = 0; row < 2; row++) {
+          var bx = 25.6 + col * 1.55, by = 1.55 + row * 0.95;
+          box(new THREE.MeshStandardMaterial({ color: 0x2a2620 }), 1.4, 0.85, 0.08, bx, by, wallZ, building);
+          var tex = screenTex(256, 160, function (g, w, h) { analDraw(g, w, h, row ? "wave" : (col % 2 ? "grid" : "peak")); });
+          var pl = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 0.74), new THREE.MeshStandardMaterial({
+            map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.65
+          }));
+          pl.position.set(bx, by, wallZ + 0.05); building.add(pl);
+        }
+      }
+      var analLight = new THREE.PointLight(0xa0ffe0, 0.35, 6, 2); analLight.position.set(28.2, 2.2, -5.8); building.add(analLight);
+
+      // ---- Creator: editing bay with vertical (shorts) monitors ----
+      var crDesk = deskAt(38.55, -4.2, 1.1, 2.2, Math.PI / 2);
+      chairAt(37.0, -4.2, Math.PI / 2, 0x6a3a32);
+      function shortTex(title, hue) {
+        return screenTex(192, 320, function (g, w, h) {
+          g.fillStyle = hue; g.fillRect(0, 0, w, h);
+          g.fillStyle = "#0a0a08"; g.fillRect(10, 10, w - 20, h - 20);
+          g.fillStyle = hue; g.fillRect(18, 40, w - 36, h * 0.55);
+          g.fillStyle = "#f0e6c8"; g.font = "700 22px monospace"; g.textAlign = "center";
+          g.fillText(title, w / 2, h * 0.72);
+          g.font = "16px monospace"; g.fillStyle = "#9a8f78"; g.fillText("9:16  SHORT", w / 2, h * 0.82);
+          g.fillStyle = "#e6a23c"; g.fillRect(w / 2 - 16, h - 36, 32, 8);
+        });
+      }
+      [[-0.7, "#2e6a62"], [0, "#8a3a3a"], [0.7, "#a07a20"]].forEach(function (q, i) {
+        var bezel = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.05, 0.07), new THREE.MeshStandardMaterial({ color: 0x2a2420, roughness: 0.55, metalness: 0.2 }));
+        bezel.position.set(q[0], 1.55, 0.42); crDesk.add(bezel);
+        var tex = shortTex(["HOOK", "PEAK", "OUTRO"][i], q[1]);
+        var scr = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.92), new THREE.MeshStandardMaterial({
+          map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.7
+        }));
+        scr.position.set(q[0], 1.55, 0.46); scr.rotation.y = Math.PI; crDesk.add(scr);
+      });
+      // timeline strip on the desk
+      var tlTex = screenTex(512, 64, function (g, w, h) {
+        g.fillStyle = "#1a1612"; g.fillRect(0, 0, w, h);
+        ["#2e6a62", "#8a3a3a", "#a07a20", "#3a6a7a"].forEach(function (c, i) {
+          g.fillStyle = c; g.fillRect(12 + i * 122, 14, 110, 36);
+        });
+        g.fillStyle = "#e6a23c"; g.fillRect(200, 0, 3, h);
+      });
+      var tl = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.04, 0.28), new THREE.MeshStandardMaterial({
+        map: tlTex, emissive: 0xffffff, emissiveMap: tlTex, emissiveIntensity: 0.4
+      }));
+      tl.position.set(0, 0.84, 0.15); crDesk.add(tl);
+      // trim bin of rusted clip tins
+      [[33.5, -6.6], [33.9, -6.4], [33.6, -6.2]].forEach(function (p, i) {
+        box(new THREE.MeshStandardMaterial({ color: [0x8a4422, 0x5a5e60, 0x6a3a22][i], roughness: 0.55, metalness: 0.35 }), 0.35, 0.22, 0.28, p[0], 0.51, p[1], building);
+      });
+
+      // ---- YouSEE YT: thumbnail wall + APPROVAL REQUIRED upload console ----
+      var seeDesk = deskAt(28.2, 8.35, 2.2, 0.85, Math.PI);
+      chairAt(28.2, 7.4, 0, 0xa07a20);
+      // thumbnail wall on the south wall
+      var thumbTitles = ["DAWN OPEN", "CROWD SURGE", "HOOK A", "HOOK B", "PEAK CUT", "COLD OPEN", "SIDE BY SIDE", "END CARD"];
+      var thumbCols = ["#2e6a62", "#8a3a3a", "#a07a20", "#3e6a7a", "#6a7a3e", "#8a5a3a", "#46588a", "#7a3a2a"];
+      var thZ = 10.0 - WALL_T / 2 - 0.08;
+      thumbTitles.forEach(function (title, i) {
+        var col = i % 4, row = (i / 4) | 0;
+        var tx = 25.5 + col * 1.55, ty = 1.45 + row * 1.15;
+        box(new THREE.MeshStandardMaterial({ color: 0x2a241c }), 1.35, 1.0, 0.06, tx, ty, thZ, building);
+        var tex = screenTex(256, 192, function (g, w, h) {
+          g.fillStyle = "#1a1410"; g.fillRect(0, 0, w, h);
+          g.fillStyle = thumbCols[i]; g.fillRect(12, 12, w - 24, h * 0.62);
+          g.fillStyle = "#f0e6c8"; g.font = "700 22px monospace"; g.textAlign = "center";
+          g.fillText(title, w / 2, h * 0.82);
+        });
+        var pl = new THREE.Mesh(new THREE.PlaneGeometry(1.22, 0.88), new THREE.MeshStandardMaterial({
+          map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.45
+        }));
+        pl.position.set(tx, ty, thZ - 0.04); pl.rotation.y = Math.PI; building.add(pl);
+      });
+      // upload console (east side of the room) with a bold APPROVAL REQUIRED stencil
+      var cons = new THREE.Group(); cons.position.set(31.0, 0.28, 6.6); cons.rotation.y = -Math.PI / 2; building.add(cons);
+      var consBody = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.15, 0.7), new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 0.7, metalness: 0.25 }));
+      consBody.position.y = 1.05; consBody.castShadow = true; cons.add(consBody);
+      var apprTex = stencilSign(512, 192, ["APPROVAL", "REQUIRED"], "#e6a23c", "#4a1e14");
+      var appr = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.44), new THREE.MeshStandardMaterial({
+        map: apprTex, emissive: 0xffffff, emissiveMap: apprTex, emissiveIntensity: 0.85
+      }));
+      appr.position.set(0, 1.42, 0.36); cons.add(appr);
+      var apprLite = new THREE.PointLight(0xff6030, 0.45, 4, 2); apprLite.position.set(0, 1.5, 0.6); cons.add(apprLite);
+      // locked lever
+      var lever = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.36, 0.08), metalM);
+      lever.position.set(-0.35, 1.05, 0.42); lever.rotation.x = -0.5; cons.add(lever);
+      var knob = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), new THREE.MeshStandardMaterial({ color: 0xa0302a, metalness: 0.4, roughness: 0.4 }));
+      knob.position.set(-0.35, 1.22, 0.52); cons.add(knob);
+      var btn = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.05, 16), new THREE.MeshStandardMaterial({ color: 0xc89a2a, emissive: 0xa07020, emissiveIntensity: 0.6 }));
+      btn.position.set(0.3, 1.12, 0.4); btn.rotation.x = Math.PI / 2; cons.add(btn);
+      var slot = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, 0.08), new THREE.MeshStandardMaterial({ color: 0x1a1612 }));
+      slot.position.set(0, 0.88, 0.38); cons.add(slot);
+
+      // ---- Researcher's YouTube research desk ----
+      var resDesk = deskAt(38.5, 7.6, 1.6, 0.8, Math.PI / 2);
+      chairAt(37.3, 7.6, Math.PI / 2, 0x5a6a3e);
+      var papersM = new THREE.MeshStandardMaterial({ color: 0xe0d4b0 });
+      [[-0.4, -0.1, 0.2], [0.15, 0.15, -0.3], [0.4, -0.15, 0.5]].forEach(function (q) {
+        var sh = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.015, 0.2), papersM);
+        sh.position.set(q[0], 0.82, q[1]); sh.rotation.y = q[2]; resDesk.add(sh);
+      });
+      var resCrt = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.4, 0.08), new THREE.MeshStandardMaterial({ color: 0x2a2620 }));
+      resCrt.position.set(0, 1.18, 0.28); resDesk.add(resCrt);
+      var resTex = screenTex(256, 192, function (g, w, h) {
+        g.fillStyle = "#12180c"; g.fillRect(0, 0, w, h);
+        g.fillStyle = "#c8e070"; g.font = "700 16px monospace";
+        ["> CLIP RESEARCH", "  hook in first 3s", "  pattern interrupt", "  payoff before 20s", "  end-card hold", "  sources only"].forEach(function (l, i) { g.fillText(l, 10, 28 + i * 26); });
+      });
+      var resScr = new THREE.Mesh(new THREE.PlaneGeometry(0.48, 0.34), new THREE.MeshStandardMaterial({
+        map: resTex, emissive: 0xffffff, emissiveMap: resTex, emissiveIntensity: 0.55
+      }));
+      resScr.position.set(0, 1.18, 0.325); resScr.rotation.y = Math.PI; resDesk.add(resScr);
+      wallBoard(40.2 - WALL_T / 2 - 0.04, 6.6, -Math.PI / 2, 2.4, 1.3, function (g, w, h) {
+        g.fillStyle = "#1c2016"; g.fillRect(0, 0, w, h);
+        g.fillStyle = "#c8e070"; g.font = "700 28px monospace"; g.fillText("RESEARCH BOARD", 24, 44);
+        g.font = "22px monospace"; g.fillStyle = "#e0d4b0";
+        ["- first-3s hook", "- pattern interrupt", "- crowd / laugh peak", "- payoff before 20s", "- our own sources only"].forEach(function (l, i) { g.fillText(l, 28, 90 + i * 40); });
+      });
+    })();
+
     // ---- clutter: crates, barrels, rubble in corners (kept clear of doors and stations) ----
-    var KEEP_CLEAR = [[0, -0.4, 2.6], [0, -11.5, 2.4], [-6.2, 12.8, 1.6], [-9.7, -10.6, 1.6], [-9.8, 11.2, 1.8], [13.9, -10.0, 2.2], [13.9, 11.2, 1.6], [3.6, 11.6, 1.8], [-5.4, -9.6, 1.4], [-5.2, 3.6, 1.2], [7.4, 15.2, 0.8], [-10.6, 13.4, 0.8], [11.0, 14.8, 0.8], [-1.3, -10.0, 1.0], [1.3, -11.3, 1.0], [12.4, -9.4, 1.0], [15.2, -10.0, 1.0], [-10.0, 12.5, 1.0], [-9.8, -9.4, 1.0]];
+    var KEEP_CLEAR = [[0, -0.4, 2.6], [0, -11.5, 2.4], [-6.2, 12.8, 1.6], [-9.7, -10.6, 1.6], [-9.8, 11.2, 1.8], [13.9, -10.0, 2.2], [13.9, 11.2, 1.6], [3.6, 11.6, 1.8], [-5.4, -9.6, 1.4], [-5.2, 3.6, 1.2], [7.4, 15.2, 0.8], [-10.6, 13.4, 0.8], [11.0, 14.8, 0.8], [-1.3, -10.0, 1.0], [1.3, -11.3, 1.0], [12.4, -9.4, 1.0], [15.2, -10.0, 1.0], [-10.0, 12.5, 1.0], [-9.8, -9.4, 1.0], [28.2, -5.2, 1.6], [28.2, -6.2, 1.8], [37.0, -4.2, 1.6], [38.55, -4.2, 1.8], [28.2, 7.4, 1.6], [28.2, 8.35, 1.6], [31.0, 6.6, 1.4], [37.3, 7.6, 1.4], [38.5, 7.6, 1.6]];
     DOORS.forEach(function (d) { KEEP_CLEAR.push([d.x, d.z, 2.6]); });
     var crateM = new THREE.MeshStandardMaterial({ map: crateTex, roughness: 0.9 });
     var barrelMs = [0x8a4422, 0x4a5a3a, 0x5a5e60].map(function (c) { return new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.4 }); });
@@ -2621,6 +2974,31 @@
         cy(armR.elbow, 0.003, 0.003, 0.2, M(0x1a1a18), 0.03, -0.3, -0.06, 0.8);
         // small notebook in the left hand
         bx(armL.elbow, 0.07, 0.1, 0.02, M(0x5a5434), 0, -0.3, 0.045, -0.3);
+      } else if (id === "vanalyzer") {
+        // canvas vest and a rusted review headset
+        bx(torso, 0.31 * broad, 0.28, 0.19, M(0x4a5a48), 0, 0.32, 0.004);
+        cy(torso, 0.058, 0.064, 0.04, shirtM, 0, 0.52, 0, 0, 0, 0, 12);
+        var hsM = M(0x3a3a34, { metalness: 0.45, roughness: 0.4 });
+        cy(head, 0.038, 0.038, 0.03, hsM, -0.145, 0.05, 0, 0, 0, PI / 2);
+        cy(head, 0.038, 0.038, 0.03, hsM, 0.145, 0.05, 0, 0, 0, PI / 2);
+        tor(head, 0.14, 0.01, hsM, 0, 0.08, 0, PI / 2);
+        bx(head, 0.16, 0.025, 0.04, M(0x2a6a62, { emissive: 0x143830, emissiveIntensity: 0.4 }), 0, 0.12, 0.12);
+        bx(hips, 0.3 * broad, 0.04, 0.19, M(0x2a241c), 0, 0.06, 0);
+      } else if (id === "creator") {
+        // short work apron and a grease pencil behind the ear
+        bx(torso, 0.28 * broad, 0.34, 0.04, M(0x6a3a32, { roughness: 0.95 }), 0, 0.22, 0.12);
+        bx(torso, 0.08, 0.1, 0.02, M(0x3a2a22), 0.08, 0.18, 0.14);
+        cy(head, 0.007, 0.007, 0.11, M(0xd8b030), 0.13, 0.08, -0.01, 1.3, 0, 0);
+        bx(hips, 0.3 * broad, 0.04, 0.19, M(0x3a2418), 0, 0.05, 0);
+      } else if (id === "yousee") {
+        // mustard waistcoat and a clipboard under the arm
+        bx(torso, 0.3 * broad, 0.26, 0.19, M(0x8a6a28), 0, 0.33, 0.004);
+        for (var yb = 0; yb < 3; yb++) sp(torso, 0.008, brass, 0, 0.42 - yb * 0.07, 0.1);
+        cy(torso, 0.058, 0.064, 0.04, shirtM, 0, 0.52, 0, 0, 0, 0, 12);
+        bx(armL.elbow, 0.12, 0.16, 0.02, M(0xc8b890), 0, -0.3, 0.05, -0.3);
+        bx(armL.elbow, 0.08, 0.02, 0.025, M(0x3a2a1c), 0, -0.24, 0.055, -0.3);
+        cy(head, 0.12, 0.13, 0.08, M(0x3a342c, { roughness: 0.95 }), 0, 0.16, -0.02, 0, 0, 0, 16);
+        bx(head, 0.16, 0.02, 0.16, M(0x2a2620), 0, 0.12, 0.04);
       }
 
       if (look.scale && look.scale !== 1) {
@@ -2832,6 +3210,15 @@
       bubble.style.display = "none";
       Object.keys(HOME).forEach(function (k) { camGoal[k] = HOME[k]; });
     });
+    document.getElementById("yt-view").addEventListener("click", function () {
+      selected = null;
+      botGroups.forEach(function (b) {
+        b.ring.material.opacity = 0;
+        b.tag.style.color = "#f0e6c8";
+      });
+      bubble.style.display = "none";
+      Object.keys(YT_HOME).forEach(function (k) { camGoal[k] = YT_HOME[k]; });
+    });
 
     window.addEventListener("resize", function () {
       camera.aspect = innerWidth / innerHeight;
@@ -2896,15 +3283,21 @@
       risk:       { x: 13.9,  z: 11.25,  face: 0,           pose: "ledger" },
       researcher: { x: 3.6,   z: 11.65,  face: 0,           pose: "radio" },
       trader:     { x: 17.67, z: 1.6,    face: Math.PI / 2, pose: "sit" },
+      vanalyzer:  { x: 28.2,  z: -5.2,   face: Math.PI,     pose: "study" },
+      creator:    { x: 37.0,  z: -4.2,   face: Math.PI / 2, pose: "sit" },
+      yousee:     { x: 28.2,  z: 7.4,    face: 0,           pose: "ledger" },
     };
     var VISITS = {
       austronaut: { partner: "scout",   x: 1.35,  z: -11.2, vias: [[1.5, -9.6]] },
       scanner:    { partner: "analyst", x: -10.0, z: 12.45 },
       researcher: { partner: "fund",    x: 15.25, z: -10.0, vias: [[15.3, -8.6]] },
+      vanalyzer:  { partner: "creator", x: 34.0,  z: -2.4 },
+      creator:    { partner: "yousee",  x: 26.6,  z: 4.4 },
     };
     var STROLLS = {
       scout: [[2.6, -9.2]], austronaut: [[-2.5, 11.0], [0, 2.6], [3.5, -3.0], [-16.4, 0.6]], scanner: [[-14.5, -9.0], [-9.8, -3.3]],
       analyst: [[-14.0, 10.6], [-8.4, 2.4]], fund: [[16.6, -8.0], [16.6, -2.0]], risk: [[16.6, 9.2], [9.0, 2.4]], researcher: [[6.2, 10.0], [9.8, -3.3]], trader: [[16.4, 2.4]],
+      vanalyzer: [[26.2, -2.8], [30.2, -3.0], [28.2, -2.0]], creator: [[33.8, -2.8], [36.2, -1.8], [38.4, -6.4]], yousee: [[26.0, 4.6], [30.0, 4.8], [28.2, 5.4]],
     };
     function botById(id) { return botGroups.filter(function (b) { return b.def.id === id; })[0]; }
 
@@ -3293,7 +3686,10 @@
         fund: "Researches fundamentals: earnings, news, filings, and the macro backdrop.",
         risk: "Checks every setup for size, stop, and risk/reward. Rejects anything that fails.",
         researcher: "Web researcher. Finds and summarizes sources for any question.",
-        trader: "Runs paper trades only on TradingView, under the Deliberate Entry Rules."
+        trader: "Runs paper trades only on TradingView, under the Deliberate Entry Rules.",
+        vanalyzer: "Watches videos and streams, then flags the most popular or exciting moments for Creator.",
+        creator: "Cuts those moments into vertical shorts for the channel. Does not publish.",
+        yousee: "Manages the channel: thumbnails and uploads, but only after your explicit approval."
       };
       function hex(n) { return "#" + ("000000" + (n >>> 0).toString(16)).slice(-6); }
       function avatarSVG(id) {
@@ -3346,7 +3742,15 @@
         Object.keys(rows).forEach(function (k) { rows[k].row.classList.toggle("open", k === id); });
         refresh();
       }
+      var lastDiv = "";
       BOTS.forEach(function (def) {
+        if (def.div && def.div !== lastDiv) {
+          lastDiv = def.div;
+          var h = document.createElement("div");
+          h.className = "crew-group";
+          h.textContent = def.div === "youtube" ? "YOUTUBE DIVISION" : def.div;
+          listEl.appendChild(h);
+        }
         var row = document.createElement("div");
         row.className = "crew-row";
         row.title = def.name;
@@ -3415,6 +3819,7 @@
 
       // Roof stays off so the whole floor stays visible.
       roof.visible = false;
+      ytRoof.visible = false;
       roofMat.opacity = 0;
 
       updateWorld(dt);
