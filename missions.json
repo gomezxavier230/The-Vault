@@ -36,6 +36,12 @@
       "match": "left side sidebar",
       "completedAt": "2026-11-13T00:05:00Z",
       "note": "Added a collapsible Crew sidebar on the left listing every teammate with a small avatar, name, and what they do; click one to see what they're working on now, where they are, and related pending missions"
+    },
+    {
+      "match": "go over as many charts for the past 3 days",
+      "title": "3-day opening chart study (Nov 10-12)",
+      "completedAt": "2026-11-13T00:28:00Z",
+      "note": "Whole trading team studied the first 15 minutes on SPY, QQQ, ES, NQ, NVDA, NBIS, CRWV. Opening-range breakout with far-side stop failed 0/23; sweeps and 5m-range midpoint-stop breakouts looked best on tiny samples. Paper Trader wrote a v2 proposal (needs approval). Study only, no orders."
     }
   ]
 }
