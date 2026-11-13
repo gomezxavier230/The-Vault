@@ -886,6 +886,117 @@
     towerLight.position.set(21, 7.4, -17);
     scene.add(towerLight);
 
+    // --- Archer towers on each compound corner ---
+    var atStoneM = new THREE.MeshStandardMaterial({ color: 0x5e5244, roughness: 0.96 });
+    var atPlankM = new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 0.95 });
+    var atRoofM = new THREE.MeshStandardMaterial({ color: PAL.rust, metalness: 0.35, roughness: 0.65, side: THREE.DoubleSide });
+    var atClothM = new THREE.MeshStandardMaterial({ color: 0x6e4a2a, roughness: 0.9 });
+    var atSkinM = new THREE.MeshStandardMaterial({ color: 0x9a7456, roughness: 0.8 });
+    var atBowM = new THREE.MeshStandardMaterial({ color: 0x2a1e14, roughness: 0.7 });
+    var atFireM = new THREE.MeshStandardMaterial({ color: PAL.amber, emissive: 0xff8a2a, emissiveIntensity: 1.2 });
+    function atBox(g, mat, w, h, d, x, y, z) {
+      var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      m.position.set(x, y, z);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      g.add(m);
+      return m;
+    }
+    function archerTower(x, z, face) {
+      var g = new THREE.Group();
+      // rubble/stone footing
+      atBox(g, atStoneM, 3.4, 1.0, 3.4, 0, 0.5, 0);
+      // scrap timber legs with cross bracing
+      var H = 7.2, s = 1.25;
+      [[-s, -s], [s, -s], [-s, s], [s, s]].forEach(function (p) {
+        atBox(g, wood, 0.26, H, 0.26, p[0], 1.0 + H / 2, p[1]);
+      });
+      [2.6, 5.2].forEach(function (y) {
+        atBox(g, atPlankM, 2.7, 0.14, 0.12, 0, y, -s);
+        atBox(g, atPlankM, 2.7, 0.14, 0.12, 0, y, s);
+        atBox(g, atPlankM, 0.12, 0.14, 2.7, -s, y, 0);
+        atBox(g, atPlankM, 0.12, 0.14, 2.7, s, y, 0);
+      });
+      [-s, s].forEach(function (zz) {
+        var br = atBox(g, postM, 0.08, 4.6, 0.08, 0, 3.9, zz);
+        br.rotation.z = 0.62;
+      });
+      // shooting platform
+      var PY = 1.0 + H;
+      atBox(g, atPlankM, 3.6, 0.2, 3.6, 0, PY, 0);
+      // parapet with merlons and arrow slits
+      for (var i = 0; i < 4; i++) {
+        var side = new THREE.Group();
+        atBox(side, atPlankM, 3.6, 0.55, 0.14, 0, 0.38, 1.73);
+        for (var m = -1.5; m <= 1.51; m += 1.0) {
+          atBox(side, atPlankM, 0.5, 0.5, 0.16, m, 0.9, 1.73);
+        }
+        side.rotation.y = i * Math.PI / 2;
+        side.position.y = PY;
+        g.add(side);
+      }
+      // corner roof posts and rusted sheet-metal pyramid roof
+      [[-1.6, -1.6], [1.6, -1.6], [-1.6, 1.6], [1.6, 1.6]].forEach(function (p) {
+        atBox(g, wood, 0.14, 2.2, 0.14, p[0], PY + 1.1, p[1]);
+      });
+      var roof = new THREE.Mesh(new THREE.ConeGeometry(2.75, 1.5, 4, 1, true), atRoofM);
+      roof.rotation.y = Math.PI / 4;
+      roof.position.y = PY + 2.95;
+      roof.castShadow = true;
+      g.add(roof);
+      // ladder
+      var lad = new THREE.Group();
+      atBox(lad, wood, 0.08, PY, 0.08, -0.3, PY / 2, 0);
+      atBox(lad, wood, 0.08, PY, 0.08, 0.3, PY / 2, 0);
+      for (var ry = 0.5; ry < PY; ry += 0.45) atBox(lad, wood, 0.6, 0.05, 0.06, 0, ry, 0);
+      lad.position.set(0, 0, -s - 0.2);
+      lad.rotation.x = -0.06;
+      g.add(lad);
+      // tattered pennant
+      atBox(g, postM, 0.06, 1.4, 0.06, 0, PY + 4.2, 0);
+      var flag = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.45), new THREE.MeshStandardMaterial({ color: PAL.amberDim, side: THREE.DoubleSide, roughness: 0.9 }));
+      flag.position.set(0.47, PY + 4.6, 0);
+      g.add(flag);
+      // fire brazier
+      atBox(g, postM, 0.35, 0.3, 0.35, -1.2, PY + 0.25, -1.2);
+      var fire = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), atFireM);
+      fire.position.set(-1.2, PY + 0.5, -1.2);
+      g.add(fire);
+      // archer standing watch, bow drawn, facing outward
+      var archer = new THREE.Group();
+      atBox(archer, atClothM, 0.34, 0.75, 0.24, 0, 0.75, 0);
+      atBox(archer, atClothM, 0.12, 0.45, 0.12, -0.09, 0.22, 0);
+      atBox(archer, atClothM, 0.12, 0.45, 0.12, 0.09, 0.22, 0);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), atSkinM);
+      head.position.y = 1.3;
+      archer.add(head);
+      var hood = new THREE.Mesh(new THREE.ConeGeometry(0.19, 0.3, 8), atClothM);
+      hood.position.y = 1.47;
+      archer.add(hood);
+      atBox(archer, atClothM, 0.1, 0.1, 0.5, 0.2, 1.0, 0.22);
+      atBox(archer, atClothM, 0.1, 0.1, 0.35, -0.2, 1.0, 0.1);
+      var bow = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.025, 6, 16, Math.PI), atBowM);
+      bow.rotation.z = Math.PI / 2;
+      bow.rotation.y = Math.PI;
+      bow.position.set(0.2, 1.0, 0.5);
+      archer.add(bow);
+      atBox(archer, atBowM, 0.015, 0.84, 0.015, 0.2, 1.0, 0.1);
+      atBox(archer, wood, 0.03, 0.03, 0.62, 0.2, 1.0, 0.36);
+      atBox(archer, atBowM, 0.16, 0.5, 0.12, -0.12, 0.95, -0.17);
+      archer.position.set(0.4, PY + 0.1, 0.4);
+      archer.rotation.y = face;
+      g.add(archer);
+      g.position.set(x, 0, z);
+      scene.add(g);
+      return g;
+    }
+    var archerTowers = [
+      archerTower(fence.x0, fence.z0, -Math.PI * 0.75),
+      archerTower(fence.x1, fence.z0, Math.PI * 0.75),
+      archerTower(fence.x0, fence.z1, -Math.PI * 0.25),
+      archerTower(fence.x1, fence.z1, Math.PI * 0.25),
+    ];
+
     // --- Building ---
     var building = new THREE.Group();
     scene.add(building);

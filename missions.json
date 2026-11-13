@@ -59,6 +59,12 @@
       "match": "connect with door",
       "completedAt": "2026-11-13T01:35:03Z",
       "note": "Trading HQ and the YouTube Division are now joined by an enclosed route with real walls and sliding doors: E-Corridor > YT LINK passage (between Storage and Trader quarters) > DIVISION LINK hallway > Reel Hall. Fixed flickering YouTube Division signs, moved the big sign out of the old walkway roof, removed the open-air walkway posts/roof/chevrons, kept floor room names off the painted floor lines, and stopped the top hint overlapping the Mission Control button."
+    },
+    {
+      "title": "Archer towers on each compound corner",
+      "text": "Make archer towers on each corner of the compaound so the fortify my base.",
+      "completedAt": "2026-11-13T02:22:54Z",
+      "note": "Added four scrap-timber archer towers, one on each corner of the compound fence. Each has a rubble footing, braced legs, a ladder, a shooting platform with a notched parapet, a rusted sheet-metal roof, a tattered pennant, a fire brazier, and a hooded archer with a drawn bow watching the outside. The existing watchtower and everything else are unchanged."
     }
   ]
 }
