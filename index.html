@@ -322,6 +322,51 @@
     #mc-toast.err { color: #e07060; }
     #mc-toast.ok { color: #8fdb6a; }
 
+    /* ===== Crew sidebar (left, collapsible) ===== */
+    #crew {
+      pointer-events: auto; position: absolute; top: 12px; left: 12px; bottom: 12px; width: 268px;
+      background: rgba(12,11,9,0.95); border: 1.5px solid #a36f1f; border-radius: 10px;
+      display: flex; flex-direction: column; z-index: 5; box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+      overflow: hidden; transition: width 0.2s ease;
+    }
+    #crew header { display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 12px 12px 10px; border-bottom: 1px solid #3a3024; }
+    #crew header h2 { font-size: 12px; letter-spacing: 0.16em; color: #e6a23c; white-space: nowrap; }
+    #crew-toggle { background: transparent; color: #e6a23c; border: 1px solid #a36f1f; border-radius: 6px;
+      padding: 4px 8px; font: 700 12px inherit; cursor: pointer; line-height: 1; }
+    #crew-toggle:hover { background: rgba(230,162,60,0.15); }
+    #crew-list { flex: 1; overflow-y: auto; padding: 6px; }
+    .crew-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 6px; border-radius: 8px;
+      cursor: pointer; border: 1px solid transparent; }
+    .crew-row:hover { background: rgba(230,162,60,0.08); }
+    .crew-row.on { border-color: #a36f1f; background: rgba(230,162,60,0.12); }
+    .crew-av { flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+      border: 1.5px solid #6a5030; background: #1f1a14; cursor: pointer; position: relative; }
+    .crew-row.on .crew-av { border-color: #e6a23c; box-shadow: 0 0 0 2px rgba(230,162,60,0.25); }
+    .crew-av svg { width: 100%; height: 100%; display: block; }
+    .crew-dot { position: absolute; right: 1px; bottom: 1px; width: 9px; height: 9px; border-radius: 50%;
+      background: #8fdb6a; border: 1.5px solid #120f0c; }
+    .crew-dot.idle { background: #9a8f78; }
+    .crew-dot.sleep { background: #5a6a8a; }
+    .crew-info { flex: 1; min-width: 0; }
+    .crew-name { font-size: 12px; font-weight: 700; color: #f0e6c8; letter-spacing: 0.03em; }
+    .crew-row.on .crew-name { color: #e6a23c; }
+    .crew-role { font-size: 10.5px; color: #9a8f78; line-height: 1.4; margin-top: 2px; }
+    .crew-detail { display: none; margin-top: 7px; padding: 7px 8px; border-radius: 6px;
+      background: #0f0d0b; border: 1px solid #3a3024; font-size: 11px; line-height: 1.45; }
+    .crew-row.open .crew-detail { display: block; }
+    .crew-detail .lbl { color: #9a8f78; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .crew-detail .now { color: #8fdb6a; font-weight: 600; margin: 2px 0 6px; }
+    .crew-detail .room { color: #c8bc9c; }
+    .crew-detail ul { margin: 2px 0 0 14px; color: #c8bc9c; }
+    body.crew-closed #crew { width: 64px; }
+    body.crew-closed #crew header { justify-content: center; padding: 12px 6px 10px; }
+    body.crew-closed #crew header h2 { display: none; }
+    body.crew-closed .crew-info { display: none; }
+    body.crew-closed .crew-row { justify-content: center; padding: 6px 2px; }
+    #top { left: 296px; }
+    body.crew-closed #top { left: 92px; }
+
   </style>
 </head>
 <body>
@@ -343,6 +388,13 @@
       <div class="role"></div>
       <div class="status"></div>
     </div>
+    <aside id="crew">
+      <header>
+        <h2>CREW</h2>
+        <button id="crew-toggle" type="button" title="Collapse or expand the crew list">&laquo;</button>
+      </header>
+      <div id="crew-list"></div>
+    </aside>
     <button id="mc-toggle" type="button">Mission Control</button>
     <aside id="mission">
       <header>
@@ -3162,6 +3214,123 @@
       setOpen: function (o) { mcSetOpen(o); }, updateWorld: updateWorld, blockedAt: blockedAt, regionAt: regionAt, SOLIDS: SOLIDS,
       crossPoints: crossPoints, botById: botById, setTrading: setTrading, isTrading: function () { return trading; }
     };
+
+    // ===== Crew sidebar: every teammate, what they do, live activity =====
+    (function crewSidebar() {
+      var CREW_KEY = "opsvault.crew.closed";
+      var ABOUT = {
+        scout: "AI Operations Director. Takes your missions, delegates to the team, and reports back.",
+        austronaut: "Visual manager. Keeps the Operations Vault floor and visuals up to date.",
+        scanner: "Scans markets for movers, volume spikes, and setups worth a closer look.",
+        analyst: "Reads charts: trend, structure, levels, and entry and invalidation points.",
+        fund: "Researches fundamentals: earnings, news, filings, and the macro backdrop.",
+        risk: "Checks every setup for size, stop, and risk/reward. Rejects anything that fails.",
+        researcher: "Web researcher. Finds and summarizes sources for any question.",
+        trader: "Runs paper trades only on TradingView, under the Deliberate Entry Rules."
+      };
+      function hex(n) { return "#" + ("000000" + (n >>> 0).toString(16)).slice(-6); }
+      function avatarSVG(id) {
+        var L = LOOKS[id] || LOOKS.scout;
+        var skin = hex(L.skin), hair = hex(L.hair), shirt = hex(L.shirt), eyes = hex(L.eyes || 0x2a2420);
+        var beard = L.beard && L.beard !== "none" ? hex(L.beardColor || L.hair) : null;
+        var hairTop;
+        switch (L.hairStyle) {
+          case "knot": hairTop = '<path d="M11 20 Q12 8 20 8 Q28 8 29 20 Q26 13 20 13 Q14 13 11 20Z" fill="' + hair + '"/><circle cx="20" cy="6.5" r="3.4" fill="' + hex(L.hair2 || L.hair) + '"/>'; break;
+          case "wind": case "swept": hairTop = '<path d="M10.5 19 Q11 8 21 8.5 Q30 9 29.5 18 Q27 12 19 13.5 Q14 14.5 10.5 19Z" fill="' + hair + '"/>'; break;
+          case "pulled": hairTop = '<path d="M11 21 Q11 8.5 20 8.5 Q29 8.5 29 21 Q27 13 20 12.5 Q13 13 11 21Z" fill="' + hair + '"/>'; break;
+          default: hairTop = '<path d="M11.5 18 Q12 9 20 9 Q28 9 28.5 18 Q26 13 20 13 Q14 13 11.5 18Z" fill="' + hair + '"/>';
+        }
+        return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">' +
+          '<rect width="40" height="40" fill="#2a2218"/>' +
+          '<path d="M5 40 Q6 29 20 28 Q34 29 35 40Z" fill="' + shirt + '"/>' +
+          '<rect x="17" y="24" width="6" height="5" fill="' + skin + '"/>' +
+          '<ellipse cx="20" cy="18.5" rx="8.6" ry="9.6" fill="' + skin + '"/>' +
+          (beard ? '<path d="M12 20 Q13 29 20 29.5 Q27 29 28 20 Q25 25 20 25 Q15 25 12 20Z" fill="' + beard + '" opacity="' + (L.beard === "light" ? 0.55 : 0.9) + '"/>' : '') +
+          hairTop +
+          '<circle cx="16.8" cy="18.2" r="1.15" fill="' + eyes + '"/><circle cx="23.2" cy="18.2" r="1.15" fill="' + eyes + '"/>' +
+          (L.scar ? '<path d="M24.5 14.5 L26.5 21" stroke="#8a5a48" stroke-width="0.8"/>' : '') +
+          '<path d="M17.5 23 Q20 ' + (L.grin ? 25 : 24) + ' 22.5 23" stroke="#6a3a2a" stroke-width="0.8" fill="none"/>' +
+          '</svg>';
+      }
+      var listEl = document.getElementById("crew-list");
+      var rows = {};
+      var openId = null;
+      function dotClass(st) {
+        var t = (st || "").toLowerCase();
+        if (t.indexOf("asleep") >= 0 || t.indexOf("bed") >= 0) return "crew-dot sleep";
+        if (t.indexOf("standby") >= 0 || t.indexOf("ready") >= 0) return "crew-dot idle";
+        return "crew-dot";
+      }
+      function missionsFor(def) {
+        var out = [];
+        try {
+          var d = mcLoad();
+          var keys = [def.name.toLowerCase(), def.id.toLowerCase()];
+          if (def.id === "scout") return d.pending.slice(-3).map(function (p) { return p.text; });
+          d.pending.forEach(function (p) {
+            var t = (p.text || "").toLowerCase();
+            if (keys.some(function (k) { return t.indexOf(k) >= 0; })) out.push(p.text);
+          });
+        } catch (e) {}
+        return out.slice(-3);
+      }
+      function setOpen(id) {
+        openId = id;
+        Object.keys(rows).forEach(function (k) { rows[k].row.classList.toggle("open", k === id); });
+        refresh();
+      }
+      BOTS.forEach(function (def) {
+        var row = document.createElement("div");
+        row.className = "crew-row";
+        row.title = def.name;
+        row.innerHTML =
+          '<div class="crew-av">' + avatarSVG(def.id) + '<span class="crew-dot"></span></div>' +
+          '<div class="crew-info"><div class="crew-name"></div><div class="crew-role"></div>' +
+          '<div class="crew-detail"><div class="lbl">Working on now</div><div class="now"></div>' +
+          '<div class="lbl">Location</div><div class="room"></div><div class="ms"></div></div></div>';
+        row.querySelector(".crew-name").textContent = def.name;
+        row.querySelector(".crew-role").textContent = ABOUT[def.id] || def.role || "";
+        row.addEventListener("click", function (e) {
+          if (e.target.closest && e.target.closest(".crew-detail")) return;
+          if (document.body.classList.contains("crew-closed")) { setClosed(false); setOpen(def.id); }
+          else setOpen(openId === def.id ? null : def.id);
+          selectBot(def.id);
+        });
+        listEl.appendChild(row);
+        rows[def.id] = { row: row, def: def, now: row.querySelector(".now"), room: row.querySelector(".room"),
+          ms: row.querySelector(".ms"), dot: row.querySelector(".crew-dot") };
+      });
+      function esc(t) { var d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+      function refresh() {
+        Object.keys(rows).forEach(function (k) {
+          var r = rows[k], def = r.def;
+          r.row.classList.toggle("on", selected === k);
+          r.dot.className = dotClass(def.status);
+          r.now.textContent = def.status || "On standby";
+          var rm = ROOMS[def.room];
+          r.room.textContent = rm ? rm.name : "";
+          if (k === openId) {
+            var ms = missionsFor(def);
+            r.ms.innerHTML = ms.length ? '<div class="lbl" style="margin-top:6px">Pending missions</div><ul>' +
+              ms.map(function (m) { return "<li>" + esc(m.length > 90 ? m.slice(0, 88) + "…" : m) + "</li>"; }).join("") + "</ul>" : "";
+          }
+        });
+      }
+      function setClosed(c) {
+        document.body.classList.toggle("crew-closed", c);
+        document.getElementById("crew-toggle").innerHTML = c ? "&raquo;" : "&laquo;";
+        try { localStorage.setItem(CREW_KEY, c ? "1" : "0"); } catch (e) {}
+      }
+      document.getElementById("crew-toggle").addEventListener("click", function () {
+        setClosed(!document.body.classList.contains("crew-closed"));
+      });
+      var startClosed = false;
+      try { startClosed = localStorage.getItem(CREW_KEY) === "1"; } catch (e) {}
+      if (innerWidth < 760 && localStorage.getItem(CREW_KEY) == null) startClosed = true;
+      setClosed(startClosed);
+      refresh();
+      setInterval(refresh, 600);
+    })();
 
     var clock = new THREE.Clock();
     function tick() {

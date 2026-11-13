@@ -30,6 +30,12 @@
       "title": "Paper Trader training: trading concepts and SMC",
       "completedAt": "2026-11-12T23:40:00Z",
       "note": "Paper Trader finished its Deliberate Entry Rules from Technical Analyst's playbook and Researcher's study pack. Study only, no orders placed."
+    },
+    {
+      "title": "Crew sidebar with avatars",
+      "match": "left side sidebar",
+      "completedAt": "2026-11-13T00:05:00Z",
+      "note": "Added a collapsible Crew sidebar on the left listing every teammate with a small avatar, name, and what they do; click one to see what they're working on now, where they are, and related pending missions"
     }
   ]
 }
