@@ -128,7 +128,7 @@
     }
   
     #top { right: 380px; }
-    body.mc-closed #top { right: 20px; }
+    body.mc-closed #top { right: 230px; } /* keep the hint and view buttons clear of the Mission Control button */
     #mc-toggle {
       pointer-events: auto;
       position: absolute;
@@ -507,8 +507,8 @@
     mess:   { name: "MESS",       x: -9.8,  z: 3.6,  w: 5.2, d: 5.2, color: 0x241c14 },
     comms:  { name: "COMMS ANNEX",x: 9.8,   z: -3.8, w: 5.2, d: 4,   color: 0x1a1e20 },
     water:  { name: "WATER WORKS",x: 9.8,   z: 3.6,  w: 5.2, d: 5.2, color: 0x16201e },
-    store:  { name: "STORAGE",    x: 17.2,  z: -2.8, w: 4,   d: 6,   color: 0x1e1a16 },
-    quarters: { name: "TRADER",   x: 17.2,  z: 3.2,  w: 4,   d: 6,   color: 0x201a18 },
+    store:  { name: "STORAGE",    x: 17.2,  z: -3.6, w: 4,   d: 4.4, color: 0x1e1a16 },
+    quarters: { name: "TRADER",   x: 17.2,  z: 3.6,  w: 4,   d: 5.2, color: 0x201a18 },
     ythall:   { name: "REEL HALL",     x: 32.2, z: 1.2,  w: 16, d: 3.2, color: 0x221c18 },
     ytanal:   { name: "VIDEO ANALYZER", x: 28.2, z: -4.2, w: 8,  d: 7.6, color: 0x1a2220 },
     ytcreate: { name: "CREATOR BAY",   x: 36.2, z: -4.2, w: 8,  d: 7.6, color: 0x241816 },
@@ -908,7 +908,7 @@
     // YouTube Division pad (separate slab to the east; seams do not overlap the trading pad)
     box(concM, 16.6, 0.35, 18.8, 32.3, 0.1, 1.0, building);
     // walkway / path pads in the gap and around the south-east corner
-    box(concM, 2.95, 0.35, 3.4, 22.525, 0.1, 1.2, building);
+    box(concM, 2.95, 0.35, 4.4, 22.525, 0.1, 0.7, building);
     box(concM, 3.1, 0.35, 13.2, 22.6, 0.1, 9.5, building);
     box(concM, 3.1, 0.32, 2.7, 22.6, 0.085, 17.5, building);
     box(concM, 18.7, 0.32, 0.75, 11.7, 0.085, 18.425, building);
@@ -937,10 +937,11 @@
       mess:   { x0: -12.4, x1: -7.2,  z0: 1.0,   z1: 6.2 },
       comms:  { x0: 7.2,   x1: 12.4,  z0: -5.8,  z1: -1.8 },
       water:  { x0: 7.2,   x1: 12.4,  z0: 1.0,   z1: 6.2 },
-      store:  { x0: 15.2,  x1: 19.2,  z0: -5.8,  z1: 0.2 },
-      quarters: { x0: 15.2, x1: 19.2, z0: 0.2,   z1: 6.2 },
+      store:  { x0: 15.2,  x1: 19.2,  z0: -5.8,  z1: -1.4 },
+      xpass:  { x0: 15.2,  x1: 19.2,  z0: -1.4,  z1: 1.0 },
+      quarters: { x0: 15.2, x1: 19.2, z0: 1.0,   z1: 6.2 },
       // YouTube Division (separate building to the east)
-      ytwalk:   { x0: 19.2, x1: 24.2, z0: -0.4,  z1: 2.8 },
+      ytwalk:   { x0: 19.2, x1: 24.2, z0: -1.4,  z1: 2.8 },
       ythall:   { x0: 24.2, x1: 40.2, z0: -0.4,  z1: 2.8 },
       ytanal:   { x0: 24.2, x1: 32.2, z0: -8.0,  z1: -0.4 },
       ytcreate: { x0: 32.2, x1: 40.2, z0: -8.0,  z1: -0.4 },
@@ -967,7 +968,8 @@
       water:  { paint: 0x3a6a5a, light: 0xb0ffe0, floor: 0x66706a, sign: "12  WATER", inlay: 0x3a8a70 },
       store:  { paint: 0x6a4a6a, light: 0xffd0c0, floor: 0x726660, sign: "13  STORAGE", inlay: 0x7e4e7a },
       quarters: { paint: 0x7a3a2a, light: 0xffc8a0, floor: 0x7a6656, sign: "14  TRADER", inlay: 0x9a4a30 },
-      ytwalk:   { paint: 0x4a4440, light: 0xffa050, floor: 0x6a6258, sign: "WALKWAY", path: true },
+      xpass:    { paint: 0x4a4440, light: 0xffa050, floor: 0x5e564c, sign: "YT LINK", hall: true },
+      ytwalk:   { paint: 0x4a4440, light: 0xffa050, floor: 0x5e564c, sign: "DIVISION LINK", hall: true },
       ythall:   { paint: 0x4a4440, light: 0xffa050, floor: 0x5e564c, sign: "REEL HALL", hall: true },
       ytanal:   { paint: 0x2e6a62, light: 0xa0ffe0, floor: 0x66706a, sign: "15  ANALYZER", lit: true, inlay: 0x3a8a80 },
       ytcreate: { paint: 0x8a3a3a, light: 0xffa0a0, floor: 0x7a6058, sign: "16  CREATOR", lit: true, inlay: 0xa84840 },
@@ -992,9 +994,12 @@
       { id: "d_comms", x: 9.8,   z: -1.8, axis: "x", w: 1.8, a: "comms",  b: "elink" },
       { id: "d_water", x: 9.8,   z: 1.0,  axis: "x", w: 1.8, a: "elink",  b: "water" },
       { id: "d_gen",   x: -15.2, z: 2.6,  axis: "z", w: 1.8, a: "gen",    b: "wcor" },
-      { id: "d_store", x: 15.2,  z: -2.8, axis: "z", w: 1.8, a: "ecor",   b: "store" },
-      { id: "d_trader", x: 15.2, z: 3.2,  axis: "z", w: 1.8, a: "ecor",   b: "quarters" },
-      // YouTube Division (own building; reached by the east walkway)
+      { id: "d_store", x: 15.2,  z: -3.7, axis: "z", w: 1.8, a: "ecor",   b: "store" },
+      { id: "d_trader", x: 15.2, z: 3.4,  axis: "z", w: 1.8, a: "ecor",   b: "quarters" },
+      // enclosed link: E-corridor -> YT LINK passage -> DIVISION LINK hallway -> Reel Hall
+      { id: "d_xpass",  x: 15.2, z: -0.2, axis: "z", w: 1.8, a: "ecor",   b: "xpass" },
+      { id: "d_xeast",  x: 19.2, z: -0.2, axis: "z", w: 1.8, a: "xpass",  b: "ytwalk" },
+      // YouTube Division (own building; reached by the enclosed DIVISION LINK hallway)
       { id: "d_ytentry",  x: 24.2, z: 1.2,  axis: "z", w: 2.0, a: "ytwalk",  b: "ythall" },
       { id: "d_ytanal",   x: 28.2, z: -0.4, axis: "x", w: 1.8, a: "ythall",  b: "ytanal" },
       { id: "d_ytcreate", x: 36.2, z: -0.4, axis: "x", w: 1.8, a: "ythall",  b: "ytcreate" },
@@ -1031,8 +1036,12 @@
       { axis: "z", c: 12.4,  a0: -5.8,  a1: 6.2, h: 3.4 },
       { axis: "x", c: -1.8,  a0: 7.2,   a1: 12.4, h: 3.4 },
       { axis: "x", c: 1.0,   a0: 7.2,   a1: 12.4, h: 3.4 },
-      // trader quarters split off the south end of storage
-      { axis: "x", c: 0.2,   a0: 15.2,  a1: 19.2, h: 3.4 },
+      // storage / YT LINK passage / trader quarters
+      { axis: "x", c: -1.4,  a0: 15.2,  a1: 19.2, h: 3.4 },
+      { axis: "x", c: 1.0,   a0: 15.2,  a1: 19.2, h: 3.4 },
+      // DIVISION LINK hallway between the two buildings
+      { axis: "x", c: -1.4,  a0: 19.2,  a1: 24.2, h: 3.4 },
+      { axis: "x", c: 2.8,   a0: 19.2,  a1: 24.2, h: 3.4 },
       // YouTube Division perimeter (separate building)
       { axis: "z", c: 24.2, a0: -8.19, a1: 10.19, h: PERIM_H, perim: true },
       { axis: "z", c: 40.2, a0: -8.19, a1: 10.19, h: PERIM_H, perim: true },
@@ -1247,7 +1256,7 @@
       lt.encoding = THREE.sRGBEncoding;
       var lm = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w * 0.7, 6), 0.65), new THREE.MeshBasicMaterial({ map: lt, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -6 }));
       lm.rotation.x = -Math.PI / 2;
-      lm.position.set((r.x0 + r.x1) / 2, 0.418, r.z0 + 1.15);
+      lm.position.set((r.x0 + r.x1) / 2, 0.418, r.z0 + (st.hall ? 0.8 : 1.55));
       building.add(lm);
     });
 
@@ -1898,23 +1907,23 @@
     // 13 STORAGE (east strip): locker row, pallets of crates, drums
     (function () {
       var lockCols = [0x5a6a5a, 0x6a5a4a, 0x4a5a6a];
-      for (var l = 0; l < 7; l++) {
+      for (var l = 0; l < 5; l++) {
         var lz = -5.2 + l * 0.62;
         box(nMat(lockCols[l % 3], { metalness: 0.45, roughness: 0.55 }), 0.5, 2.0, 0.58, 18.72, 1.28, lz, building);
         for (var v = 0; v < 3; v++) box(nMat(0x1e1c1a), 0.02, 0.03, 0.34, 18.46, 2.0 + v * 0.06, lz, building);
         box(metalM, 0.04, 0.12, 0.04, 18.45, 1.3, lz + 0.18, building);
       }
       var ajar = box(nMat(0x6a5a4a, { metalness: 0.45 }), 0.03, 1.9, 0.56, 18.2, 1.27, -2.45, building); ajar.rotation.y = 0.9;
-      box(woodM, 1.2, 0.14, 1.0, 17.7, 0.42, -0.65, building); // pallet
-      box(nCrateM, 0.8, 0.7, 0.8, 17.5, 0.84, -0.7, building).rotation.y = 0.1;
-      box(nCrateM, 0.6, 0.55, 0.6, 18.0, 0.77, -0.4, building).rotation.y = -0.3;
-      box(nCrateM, 0.6, 0.55, 0.6, 17.55, 1.47, -0.65, building).rotation.y = 0.35;
-      nBarrel(16.0, -5.0, 1); nBarrel(16.65, -5.1, 2); nBarrel(16.0, -4.4, 0);
-      nRubble(16.3, -0.5, 6);
+      box(woodM, 1.2, 0.14, 1.0, 17.55, 0.42, -2.3, building); // pallet
+      box(nCrateM, 0.8, 0.7, 0.8, 17.35, 0.84, -2.35, building).rotation.y = 0.1;
+      box(nCrateM, 0.6, 0.55, 0.6, 17.85, 0.77, -2.1, building).rotation.y = -0.3;
+      box(nCrateM, 0.6, 0.55, 0.6, 17.4, 1.47, -2.3, building).rotation.y = 0.35;
+      nBarrel(16.0, -5.25, 1); nBarrel(16.65, -5.3, 2); nBarrel(17.3, -5.25, 0);
+      nRubble(16.4, -2.2, 6);
     })();
 
     // 14 TRADER QUARTERS (south of storage): cot with blanket, nightstand lamp, trading desk + terminal, chair
-    var TRADER = { bed: { x: 18.42, z: 4.95 }, lie: { x: 18.42, y: 0.93, z: 3.98 }, side: { x: 17.25, z: 4.55 }, seat: { x: 17.67, z: 1.6 } };
+    var TRADER = { bed: { x: 18.42, z: 4.95 }, lie: { x: 18.42, y: 0.93, z: 3.98 }, side: { x: 17.25, z: 4.55 }, seat: { x: 17.67, z: 2.0 } };
     (function () {
       var bedFrameM = nMat(0x5a5048, { metalness: 0.5, roughness: 0.6 });
       var mattM = nMat(0x9a8e70, { roughness: 0.95 });
@@ -2031,53 +2040,28 @@
         return t;
       }
 
-      // covered walkway between the trading east wall and the YouTube entrance
-      var rustBeam = new THREE.MeshStandardMaterial({ color: 0x6a3a22, roughness: 0.65, metalness: 0.4 });
-      var corrM = new THREE.MeshStandardMaterial({ color: 0x6a5848, roughness: 0.7, metalness: 0.35, side: THREE.DoubleSide });
-      [[19.6, -0.15], [19.6, 2.55], [23.8, -0.15], [23.8, 2.55]].forEach(function (p) {
-        box(rustBeam, 0.12, 3.1, 0.12, p[0], 1.83, p[1], building);
-      });
-      box(rustBeam, 4.4, 0.1, 0.12, 21.7, 3.42, -0.15, building);
-      box(rustBeam, 4.4, 0.1, 0.12, 21.7, 3.42, 2.55, building);
-      box(rustBeam, 0.12, 0.1, 2.9, 19.6, 3.42, 1.2, building);
-      box(rustBeam, 0.12, 0.1, 2.9, 23.8, 3.42, 1.2, building);
-      for (var ci = 0; ci < 7; ci++) {
-        var sheet = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.04, 0.42), corrM);
-        sheet.position.set(21.7, 3.55 + (ci % 2) * 0.05, -0.15 + ci * 0.42);
-        sheet.rotation.x = 0.08;
-        sheet.castShadow = true; sheet.receiveShadow = true;
-        building.add(sheet);
-      }
-      // rusted rail along the open sides of the walkway
-      [[-0.15, 0], [2.55, 0]].forEach(function (p) {
-        box(rustBeam, 4.2, 0.04, 0.04, 21.7, 1.15, p[0], building);
-      });
-      // chevrons on the gap path pointing north toward the door
-      var chevM = new THREE.MeshStandardMaterial({ color: 0xc89a2a, roughness: 0.9 });
-      for (var cz = 3.6; cz < 16.0; cz += 1.6) {
-        box(chevM, 0.18, 0.02, 0.7, 21.7, 0.29, cz, building).castShadow = false;
-      }
+      // (the DIVISION LINK hallway is built from REGIONS/WALLS/DOORS and dressed like the other corridors)
 
       // "YOUTUBE DIVISION" sign on the west face, above the entrance (inset off the wall to avoid z-fighting)
       var ytSignTex = stencilSign(1024, 320, ["YOUTUBE DIVISION", "REEL HOUSE"], "#e6a23c", "#3a2a1c");
-      var ytSign = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 1.65), new THREE.MeshStandardMaterial({
+      var ytSign = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.0), new THREE.MeshStandardMaterial({
         map: ytSignTex, emissive: 0xffffff, emissiveMap: ytSignTex, emissiveIntensity: 0.35, roughness: 0.7, metalness: 0.2
       }));
-      ytSign.position.set(24.2 - WALL_T / 2 - 0.06, 3.15, 1.2);
+      ytSign.position.set(24.2 - WALL_T / 2 - 0.13, 4.02, 0.7);
       ytSign.rotation.y = -Math.PI / 2;
       building.add(ytSign);
-      var ytSignFr = new THREE.Mesh(new THREE.BoxGeometry(5.6, 1.85, 0.08), metalM);
-      ytSignFr.position.set(24.2 - WALL_T / 2 - 0.02, 3.15, 1.2);
+      var ytSignFr = new THREE.Mesh(new THREE.BoxGeometry(3.56, 1.14, 0.08), metalM);
+      ytSignFr.position.set(24.2 - WALL_T / 2 - 0.05, 4.02, 0.7);
       ytSignFr.rotation.y = -Math.PI / 2;
       building.add(ytSignFr);
       // smaller south-face sign, readable from the main gate path
       var ytSignS = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.2), new THREE.MeshStandardMaterial({
         map: ytSignTex, emissive: 0xffffff, emissiveMap: ytSignTex, emissiveIntensity: 0.3, roughness: 0.7
       }));
-      ytSignS.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.06);
+      ytSignS.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.13);
       building.add(ytSignS);
       var ytSignSfr = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.4, 0.08), metalM);
-      ytSignSfr.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.02);
+      ytSignSfr.position.set(32.2, 3.2, 10.0 + WALL_T / 2 + 0.05);
       building.add(ytSignSfr);
 
       // ---- Video Analyzer: wall of review screens + desk ----
@@ -3282,7 +3266,7 @@
       fund:       { x: 13.9,  z: -10.0,  face: 0,           pose: "read",   vias: [[12.5, -8.6], [12.5, -10.0]] },
       risk:       { x: 13.9,  z: 11.25,  face: 0,           pose: "ledger" },
       researcher: { x: 3.6,   z: 11.65,  face: 0,           pose: "radio" },
-      trader:     { x: 17.67, z: 1.6,    face: Math.PI / 2, pose: "sit" },
+      trader:     { x: 17.67, z: 2.0,    face: Math.PI / 2, pose: "sit" },
       vanalyzer:  { x: 28.2,  z: -5.2,   face: Math.PI,     pose: "study" },
       creator:    { x: 37.0,  z: -4.2,   face: Math.PI / 2, pose: "sit" },
       yousee:     { x: 28.2,  z: 7.4,    face: 0,           pose: "ledger" },

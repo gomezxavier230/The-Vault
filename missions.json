@@ -53,6 +53,12 @@
       "title": "YouTube Division building",
       "completedAt": "2026-11-13T01:18:36Z",
       "note": "Added a separate YouTube Division building east of the Trading HQ, joined by a covered walkway, with rooms for Video Analyzer, Creator, and YouSEE YT, plus a research desk. Crew sidebar lists the three bots under YouTube Division. Nothing uploads without approval."
+    },
+    {
+      "title": "Connected the two buildings + fixed buggy signs/objects",
+      "match": "connect with door",
+      "completedAt": "2026-11-13T01:35:03Z",
+      "note": "Trading HQ and the YouTube Division are now joined by an enclosed route with real walls and sliding doors: E-Corridor > YT LINK passage (between Storage and Trader quarters) > DIVISION LINK hallway > Reel Hall. Fixed flickering YouTube Division signs, moved the big sign out of the old walkway roof, removed the open-air walkway posts/roof/chevrons, kept floor room names off the painted floor lines, and stopped the top hint overlapping the Mission Control button."
     }
   ]
 }
